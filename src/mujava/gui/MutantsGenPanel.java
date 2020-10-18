@@ -492,8 +492,14 @@ public class MutantsGenPanel extends JPanel
             //do not generate class mutants if no class mutation operator is selected
             if(class_ops != null){
 	            cmGenEngine = new ClassMutantsGenerator(original_file,class_ops);   
+	            long start = System.currentTimeMillis();
 	            cmGenEngine.makeMutants();      
+	            long end = System.currentTimeMillis();
+	            System.out.println("Class Mutants Gen time:" + (end-start));
+	            start = System.currentTimeMillis();
 	            cmGenEngine.compileMutants();
+	            end = System.currentTimeMillis();
+	            System.out.println("Class Mutants Comp time:" + (end-start));
             }
             
             //do not generate traditional mutants if no class traditional operator is selected
@@ -502,8 +508,19 @@ public class MutantsGenPanel extends JPanel
 	            //System.out.println("original_file: " + original_file);
 	            //System.out.println("traditional_ops: " + traditional_ops);
 	            tmGenEngine = new TraditionalMutantsGenerator(original_file,traditional_ops);
+	            long start = System.currentTimeMillis();
 	            tmGenEngine.makeMutants();
+	            long end = System.currentTimeMillis();
+	            System.out.println("Trad Gen time:" + (end-start));
+	            start = System.currentTimeMillis();
 	            tmGenEngine.compileMutants();
+	            end = System.currentTimeMillis();
+	            System.out.println("Trad Comp time:" + (end-start));
+
+	            
+	            
+	            
+	            
             }
 
          } catch (OpenJavaException oje)

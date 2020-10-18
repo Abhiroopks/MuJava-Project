@@ -109,6 +109,7 @@ public class TraditionalMutantsViewerPanel  extends MutantsViewerPanel
        */      
       JPanel contentPanel = new JPanel();
       JScrollPane leftContentSP = new JScrollPane();
+      //leftContentSP.
       leftContentSP.getViewport().add(mList, null);
       leftContentSP.setPreferredSize(new Dimension(100, 580));
       contentPanel.add(leftContentSP);
@@ -129,6 +130,7 @@ public class TraditionalMutantsViewerPanel  extends MutantsViewerPanel
     
       /** show the source code of the original file and the mutant */
       originalSP.setPreferredSize(new Dimension(550, 270));
+      //originalSP.
       mutantSP.setPreferredSize(new Dimension(550, 270));
       originalSP.setBorder(new TitledBorder("Original"));
       mutantSP.setBorder(new TitledBorder("Mutant"));

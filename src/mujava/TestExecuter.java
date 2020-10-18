@@ -23,18 +23,27 @@ import java.lang.reflect.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import mujava.test.*;
 import mujava.util.*;
 
 import org.junit.*;
+import org.junit.experimental.ParallelComputer;
 import org.junit.internal.RealSystem;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -83,8 +92,7 @@ public class TestExecuter {
   //results as to how many tests can kill each single mutant  
   Map<String, String> finalMutantResults = new HashMap<String, String>(1);
   
-	ExecutorService executorService = Executors.newFixedThreadPool(
-			Runtime.getRuntime().availableProcessors());
+	ExecutorService executorService;
   
 
   public TestExecuter(String targetClassName) {
@@ -165,6 +173,9 @@ public class TestExecuter {
     String original_mutant_path = MutationSystem.MUTANT_PATH;
 
     TestResultParallel test_result = new TestResultParallel();
+    
+    long start = System.currentTimeMillis();
+
 
     if(methodSignature.equals("All method")){
         try{
@@ -181,6 +192,7 @@ public class TestExecuter {
             }
             readSignature = reader.readLine();
           }
+          
           reader.close();
         }catch(Exception e){
           System.err.println("[WARNING] A problem occurred when running the traditional mutants:");
@@ -192,6 +204,10 @@ public class TestExecuter {
       MutationSystem.MUTANT_PATH = original_mutant_path + "/" + methodSignature;
       runMutants(test_result, methodSignature);
     }
+    
+    long end = System.currentTimeMillis();
+    System.out.println("Parallel test time: "+ (end-start));
+    
     return test_result;
   }
  /**
@@ -284,7 +300,7 @@ public class TestExecuter {
            	 
       	JUnitCore jCore = new JUnitCore();	
       	//result = jCore.runMain(new RealSystem(), "VMTEST1");
-    	result = jCore.run(original_executer);
+    	result = jCore.run(ParallelComputer.methods(),original_executer);
 
     	//get the failure report and update the original result of the test with the failures
       	List<Failure> listOfFailure = result.getFailures();
@@ -347,6 +363,9 @@ public class TestExecuter {
       
       int mutant_num = mutantDirectories.length;
       test_result.setMutants();
+      
+      executorService = Executors.newWorkStealingPool();
+      
       for(int i = 0;i < mutant_num;i++){
           // set live mutnats
           test_result.mutants.add(mutantDirectories[i]);
@@ -358,18 +377,17 @@ public class TestExecuter {
       //String[] killed_mutants = new String[testCases.length];
 
       Debug.println("\n\n======================================== Executing Mutants ========================================");
-      
-      // Somehow need to parallelize this portion.
-      
-      List<TestThread> testthreads = new ArrayList<TestThread>();
+            
+      List<TestThread> testthreads = new ArrayList<TestThread>();  
 
-      
       for(int i = 0; i < test_result.mutants.size(); i++){
         // read the information for the "i"th live mutant
+    	
     	String mutant_name = test_result.mutants.get(i).toString();
+
     
     	testthreads.add(new TestThread(mutant_name,whole_class_name,testSet,
-    			testCases,test_result,originalResults));
+    			testCases,test_result,originalResults,TIMEOUT));
 
         //Debug.print("  " + mutant_name);
        
@@ -378,9 +396,26 @@ public class TestExecuter {
         //System.gc();
       }
       // END LOOP FOR MUTANTS
- 
-      executorService.invokeAll(testthreads);
+
       
+     // invoke all the tasks to thread pool and block until ALL finish
+     // shouldn't get stuck because each task has time limit
+     executorService.invokeAll(testthreads).forEach(f -> {
+		try {
+			f.get();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+	});
+     
+     
+      
+      
+      
+      
+      
+  
+
       }catch(NoMutantException e1){
       throw e1;
     }catch(NoMutantDirException e2){

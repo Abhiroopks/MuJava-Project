@@ -162,6 +162,9 @@ public class OGTestExecuter {
     String original_mutant_path = MutationSystem.MUTANT_PATH;
 
     TestResult test_result = new TestResult();
+    
+    long start = System.currentTimeMillis();
+
 
     if(methodSignature.equals("All method")){
         try{
@@ -171,6 +174,7 @@ public class OGTestExecuter {
           FileReader r = new FileReader(f);
           BufferedReader reader = new BufferedReader(r);
           String readSignature = reader.readLine();
+          
           while(readSignature != null){
 
             MutationSystem.MUTANT_PATH = original_mutant_path + "/" + readSignature;
@@ -180,6 +184,8 @@ public class OGTestExecuter {
             }
             readSignature = reader.readLine();
           }
+
+          
           reader.close();
         }catch(Exception e){
           System.err.println("[WARNING] A problem occurred when running the traditional mutants:");
@@ -190,6 +196,10 @@ public class OGTestExecuter {
       MutationSystem.MUTANT_PATH = original_mutant_path + "/" + methodSignature;
       runMutants(test_result, methodSignature);
     }
+    
+    long end = System.currentTimeMillis();
+    System.out.println("OG Test time: "+ (end-start));
+    
     return test_result;
   }
  /**
@@ -366,23 +376,9 @@ public class OGTestExecuter {
     	JMutationLoader mutantLoader = new JMutationLoader(mutant_name);
         mutantLoader.loadMutant(whole_class_name);
         mutant_executer = mutantLoader.loadTestClass(testSet);
-        
-//        
-//    	ExecutorService executorService = Executors.newFixedThreadPool(
-//    			Runtime.getRuntime().availableProcessors());
-//    	List<TestThread> testthreads = new ArrayList<TestThread>();
-//    	testthreads.add(new TestThread(mutant_name,whole_class_name,testSet,testCases));
-//    	
-//    	executorService.invokeAll(testthreads);
-    	
-    	
-    	
-    	
-    	
 
-        
-        
-        Debug.print("  " + mutant_name);
+
+        //Debug.print("  " + mutant_name);
         
 
         try{
@@ -392,8 +388,6 @@ public class OGTestExecuter {
             try{
            	 mutantRunning = true;
            	 
-           	 
-            	 
             	  //original test results
             	  mutantResults = new HashMap<String, String>();
             	  for(int k = 0;k < testCases.length;k++){
@@ -435,7 +429,7 @@ public class OGTestExecuter {
            				mutantResults.put(nameOfTest, nameOfTest + ": " + lineNumber + "; " + failure.getMessage());
            		}
            	
-           		 System.out.println(mutantResults.toString());
+           		 //System.out.println(mutantResults.toString());
             	 mutantRunning = false;
             	    synchronized(lockObject){
             	      lockObject.notify();
@@ -462,7 +456,7 @@ public class OGTestExecuter {
         	//System.out.println("check point4");
           t.interrupt();
           //mutant_result = "time_out: more than " + TIMEOUT + " seconds";
-          System.out.println(" time_out: more than " + TIMEOUT + " milliseconds");
+          System.out.println("Timeout: " + mutant_name);
          // mutantResults.put(nameOfTest, nameOfTest + ": " + lineNumber + "; " + failure.getMessage());
           
     	  for(int k = 0;k < testCases.length;k++){
@@ -491,15 +485,15 @@ public class OGTestExecuter {
     	  if(!mutantResults.get(name).equals(originalResults.get(name))){
     		  sign = true;		  
     		  //update the final results by tests
-    		  if(finalTestResults.get(name).equals(""))
-    			  finalTestResults.put(name, mutant_name);
-    		  else
-    			  finalTestResults.put(name, finalTestResults.get(name) + ", " + mutant_name);
-    		  //update the final results by mutants
-    		  if(finalMutantResults.get(mutant_name).equals(""))
-    			  finalMutantResults.put(mutant_name, name);
-    		  else
-    			  finalMutantResults.put(mutant_name, finalMutantResults.get(mutant_name) + ", " + name);
+//    		  if(finalTestResults.get(name).equals(""))
+//    			  finalTestResults.put(name, mutant_name);
+//    		  else
+//    			  finalTestResults.put(name, finalTestResults.get(name) + ", " + mutant_name);
+//    		  //update the final results by mutants
+//    		  if(finalMutantResults.get(mutant_name).equals(""))
+//    			  finalMutantResults.put(mutant_name, name);
+//    		  else
+//    			  finalMutantResults.put(mutant_name, finalMutantResults.get(mutant_name) + ", " + name);
     	  }
       }
       if(sign == true)
@@ -535,8 +529,8 @@ public class OGTestExecuter {
       System.err.println("[Exception 2]" + e);
       return null;
     }
-    System.out.println("test report: " + finalTestResults);
-    System.out.println("mutant report: " + finalMutantResults);
+    //System.out.println("test report: " + finalTestResults);
+    //System.out.println("mutant report: " + finalMutantResults);
     return tr;
   }
 

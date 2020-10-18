@@ -30,6 +30,7 @@ import mujava.gui.util.*;
 import java.io.*;
 
 import mujava.MutationSystem;
+import mujava.OGTestExecuter;
 import mujava.TestExecuter;
 import mujava.util.*;
 import mujava.test.*;
@@ -81,6 +82,7 @@ public class RunTestPanel extends JPanel implements ActionListener
    JRadioButton onlyTraditionalButton = new JRadioButton("Execute only traditional mutants");
    JRadioButton onlyExceptionButton = new JRadioButton("Execute only exception mutants");
    JRadioButton bothButton = new JRadioButton("Execute all mutants");
+   JCheckBox parallelButton = new JCheckBox("Use Parallel Executor");
 
    JComboBox testCB;
    JButton runB = new JButton("RUN");
@@ -107,13 +109,16 @@ public class RunTestPanel extends JPanel implements ActionListener
    {
       this.setLayout(new GridBagLayout());
       GridBagConstraints c = new GridBagConstraints();
+      
+      parallelButton.setActionCommand("PARALLEL");
+      parallelButton.addActionListener(this);
 
       onlyClassButton.setActionCommand("CLASS");
       onlyClassButton.addActionListener(this);
-      onlyClassButton.setSelected(true);
 
       onlyTraditionalButton.setActionCommand("TRADITIONAL");
       onlyTraditionalButton.addActionListener(this);
+      onlyTraditionalButton.setSelected(true);
 
       onlyExceptionButton.setActionCommand("TRADITIONAL");
       onlyExceptionButton.addActionListener(this);
@@ -125,11 +130,13 @@ public class RunTestPanel extends JPanel implements ActionListener
       group.add(onlyClassButton);
       group.add(onlyTraditionalButton);
       group.add(bothButton);
+      //group.add(parallelButton);
 
       JPanel optionP = new JPanel(new GridLayout(0, 1));
       optionP.add(onlyClassButton);
       optionP.add(onlyTraditionalButton);
       optionP.add(bothButton);
+      optionP.add(parallelButton);
 
       c.gridx = 0;
       c.gridy = 0;
@@ -179,7 +186,7 @@ public class RunTestPanel extends JPanel implements ActionListener
       c.gridy = 1;
       this.add(summaryPanel, c);
 
-      // Selection part for clas, test cases names ==>  (x,y) = (1,0)
+      // Selection part for class, test cases names ==>  (x,y) = (1,0)
       JPanel selectPanel = new JPanel();
       selectPanel.setLayout(new GridBagLayout());
       GridBagConstraints selectConstraints = new GridBagConstraints();
@@ -373,6 +380,8 @@ public class RunTestPanel extends JPanel implements ActionListener
       c.gridx = 1;
       c.gridy = 1;
       this.add(resultPanel, c);
+      
+      changeContents();
 
       this.addFocusListener(new java.awt.event.FocusAdapter()
       {
@@ -483,59 +492,121 @@ public class RunTestPanel extends JPanel implements ActionListener
   
       // name of test suite to apply
       Object testSetObject  = testCB.getSelectedItem();
-
-      if((targetClassObj != null) && (testSetObject != null))
-      {
-         String targetClassName = classCB.getSelectedItem().toString();
-         String testSetName = testCB.getSelectedItem().toString();
-
-         TestExecuter test_engine = new TestExecuter(targetClassName);
-         test_engine.setTimeOut(timeout_secs);
-
-         // First, read (load) test suite class.
-         test_engine.readTestSet(testSetName);
-
-         //TestResult test_result = new TestResult();
-         TestResultParallel test_result;
-         try
-         {
-            if (onlyClassButton.isSelected())
-            {
-               cResultPanel.setVisible(true);
-               tResultPanel.setVisible(false);
-               test_engine.computeOriginalTestResults();
-               test_result = test_engine.runClassMutants();
-               showResult(test_result, cResultTable, cKilledList, cLiveList);
-            } 
-            else if (onlyTraditionalButton.isSelected())
-            {
-               cResultPanel.setVisible(false);
-               tResultPanel.setVisible(true);
-               test_engine.computeOriginalTestResults();
-               test_result = test_engine.runTraditionalMutants(methodSignature.toString());
-               showResult(test_result, tResultTable, tKilledList, tLiveList);
-            }
-            else if (bothButton.isSelected())
-            {
-               cResultPanel.setVisible(true);
-               tResultPanel.setVisible(true);
-               test_engine.computeOriginalTestResults();
-               test_result = test_engine.runClassMutants();
-               showResult(test_result, cResultTable, cKilledList, cLiveList);
-               test_result = test_engine.runTraditionalMutants(methodSignature.toString());
-               showResult(test_result, tResultTable, tKilledList, tLiveList);
-            }
-         } 
-         catch (NoMutantException e1)
-         {
-         } 
-         catch (NoMutantDirException e2)
-         {
-         }
-      } 
-      else
-      {
-         System.out.println(" [Error] Please check test target or test suite ");
+      
+      // OG TEST EXECUTOR
+      if(!parallelButton.isSelected()) {
+    	  
+      
+	      if((targetClassObj != null) && (testSetObject != null))
+	      {
+	         String targetClassName = classCB.getSelectedItem().toString();
+	         String testSetName = testCB.getSelectedItem().toString();
+	
+	         OGTestExecuter test_engine = new OGTestExecuter(targetClassName);
+	         test_engine.setTimeOut(timeout_secs);
+	
+	         // First, read (load) test suite class.
+	         test_engine.readTestSet(testSetName);
+	
+	         //TestResult test_result = new TestResult();
+	         TestResult test_result;
+	         try
+	         {
+	            if (onlyClassButton.isSelected())
+	            {
+	               cResultPanel.setVisible(true);
+	               tResultPanel.setVisible(false);
+	               test_engine.computeOriginalTestResults();
+	               test_result = test_engine.runClassMutants();
+	               OGshowResult(test_result, cResultTable, cKilledList, cLiveList);
+	            } 
+	            else if (onlyTraditionalButton.isSelected())
+	            {
+	               cResultPanel.setVisible(false);
+	               tResultPanel.setVisible(true);
+	               test_engine.computeOriginalTestResults();
+	               test_result = test_engine.runTraditionalMutants(methodSignature.toString());
+	               OGshowResult(test_result, tResultTable, tKilledList, tLiveList);
+	            }
+	            else if (bothButton.isSelected())
+	            {
+	               cResultPanel.setVisible(true);
+	               tResultPanel.setVisible(true);
+	               test_engine.computeOriginalTestResults();
+	               test_result = test_engine.runClassMutants();
+	               OGshowResult(test_result, cResultTable, cKilledList, cLiveList);
+	               test_result = test_engine.runTraditionalMutants(methodSignature.toString());
+	               OGshowResult(test_result, tResultTable, tKilledList, tLiveList);
+	            }
+	         } 
+	         catch (NoMutantException e1)
+	         {
+	         } 
+	         catch (NoMutantDirException e2)
+	         {
+	         }
+	      } 
+	      else
+	      {
+	         System.out.println(" [Error] Please check test target or test suite ");
+	      }
+      }
+      // PARALLEL TEST EXECUTOR
+      else {
+      
+	      if((targetClassObj != null) && (testSetObject != null))
+	      {
+	         String targetClassName = classCB.getSelectedItem().toString();
+	         String testSetName = testCB.getSelectedItem().toString();
+	
+	         TestExecuter test_engine = new TestExecuter(targetClassName);
+	         test_engine.setTimeOut(timeout_secs);
+	
+	         // First, read (load) test suite class.
+	         test_engine.readTestSet(testSetName);
+	
+	         //TestResult test_result = new TestResult();
+	         TestResultParallel test_result;
+	         try
+	         {
+	            if (onlyClassButton.isSelected())
+	            {
+	               cResultPanel.setVisible(true);
+	               tResultPanel.setVisible(false);
+	               test_engine.computeOriginalTestResults();
+	               test_result = test_engine.runClassMutants();
+	               showResult(test_result, cResultTable, cKilledList, cLiveList);
+	            } 
+	            else if (onlyTraditionalButton.isSelected())
+	            {
+	               cResultPanel.setVisible(false);
+	               tResultPanel.setVisible(true);
+	               test_engine.computeOriginalTestResults();
+	               test_result = test_engine.runTraditionalMutants(methodSignature.toString());
+	               showResult(test_result, tResultTable, tKilledList, tLiveList);
+	            }
+	            else if (bothButton.isSelected())
+	            {
+	               cResultPanel.setVisible(true);
+	               tResultPanel.setVisible(true);
+	               test_engine.computeOriginalTestResults();
+	               test_result = test_engine.runClassMutants();
+	               showResult(test_result, cResultTable, cKilledList, cLiveList);
+	               test_result = test_engine.runTraditionalMutants(methodSignature.toString());
+	               showResult(test_result, tResultTable, tKilledList, tLiveList);
+	            }
+	         } 
+	         catch (NoMutantException e1)
+	         {
+	         } 
+	         catch (NoMutantDirException e2)
+	         {
+	         }
+	      } 
+	      else
+	      {
+	         System.out.println(" [Error] Please check test target or test suite ");
+	      }
       }
    }
 
@@ -585,11 +656,55 @@ public class RunTestPanel extends JPanel implements ActionListener
       String[] live_mutants = new String[live_num];
       for (i=0; i<killed_num; i++)
       {
-         killed_mutants[i] = tr.killed_mutants.poll();
+         killed_mutants[i] =  tr.killed_mutants.poll();
       } 
       for (i=0; i<live_num; i++)
       {
          live_mutants[i] = tr.live_mutants.poll();
+      }
+
+      killed_list.setListData(killed_mutants);
+      live_list.setListData(live_mutants);
+      killed_list.repaint();
+      live_list.repaint();
+   }
+   
+   private void OGshowResult(TestResult tr, JTable table,JList killed_list, JList live_list)
+   { 
+      int i;
+      // Mutation Score
+      if (tr == null)
+    	 System.out.println("-----------");
+      int killed_num = tr.killed_mutants.size();
+      int live_num = tr.live_mutants.size();
+
+      if ((killed_num + live_num) == 0)
+      {
+         showEmptyResult(table, killed_list, live_list);
+         System.out.println("[Notice] There are no mutants to apply");
+         return;
+      }
+
+      Float mutant_score = new Float((killed_num * 100) / (killed_num + live_num));
+
+      // Show the result on resultTable
+      ResultTableModel resultModel = (ResultTableModel)(table.getModel());
+      resultModel.setValueAt( "  " + (new Integer(live_num)).toString() , 0 , 1 );   // live mutant
+      resultModel.setValueAt( "  " + (new Integer(killed_num)).toString() , 1 , 1 ); // killed mutant
+      resultModel.setValueAt( "  " + (new Integer(live_num+killed_num)).toString() , 2 , 1 );   //total
+      resultModel.setValueAt( "  " + mutant_score.toString() + "%" , 3 , 1 );   // mutant score
+ 
+      // List of Killed, Live Mutants
+
+      String[] killed_mutants = new String[killed_num];
+      String[] live_mutants = new String[live_num];
+      for (i=0; i<killed_num; i++)
+      {
+         killed_mutants[i] =  (String) tr.killed_mutants.get(i);
+      } 
+      for (i=0; i<live_num; i++)
+      {
+         live_mutants[i] = (String) tr.live_mutants.get(i);
       }
 
       killed_list.setListData(killed_mutants);

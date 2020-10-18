@@ -47,7 +47,7 @@ public class JMutationLoader extends ClassLoader{
   }
 
 
-  public synchronized Class loadTestClass(String name) throws ClassNotFoundException{
+  public Class loadTestClass(String name) throws ClassNotFoundException{
     Class result;
     try{
       // Try to load mutant class
