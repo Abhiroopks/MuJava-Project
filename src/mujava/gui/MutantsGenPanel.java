@@ -412,6 +412,7 @@ public class MutantsGenPanel extends JPanel
       //disable the button
       runB.setEnabled(false);
       
+      // iterate over each class file selected
       for (int i=0; i<file_list.length; i++)
       {
       // file_name = ABSTRACT_PATH - MutationSystem.SRC_PATH
@@ -505,21 +506,40 @@ public class MutantsGenPanel extends JPanel
             //do not generate traditional mutants if no class traditional operator is selected
             if(traditional_ops != null){
 	            TraditionalMutantsGenerator tmGenEngine;
-	            //System.out.println("original_file: " + original_file);
-	            //System.out.println("traditional_ops: " + traditional_ops);
 	            tmGenEngine = new TraditionalMutantsGenerator(original_file,traditional_ops);
-	            long start = System.currentTimeMillis();
-	            tmGenEngine.makeMutants();
-	            long end = System.currentTimeMillis();
-	            System.out.println("Trad Gen time:" + (end-start));
-	            start = System.currentTimeMillis();
-	            tmGenEngine.compileMutants();
-	            end = System.currentTimeMillis();
-	            System.out.println("Trad Comp time:" + (end-start));
+	            
+	            OGTraditionalMutantsGenerator OGtmGenEngine;
+	            OGtmGenEngine = new OGTraditionalMutantsGenerator(original_file,traditional_ops);
+	            
+	            long start,end;
 
 	            
+	            // PARALLEL
+	            // MAKE TRAD MUTANTS HERE
+	            start = System.currentTimeMillis();
+	            tmGenEngine.makeMutants();
+	            end = System.currentTimeMillis();
+	            System.out.println("Parallel Trad time:" + (end-start));
 	            
+//	            // COMPILE HERE
+//	            start = System.currentTimeMillis();
+//	            tmGenEngine.compileMutants();
+//	            end = System.currentTimeMillis();
+//	            System.out.println("Parallel Trad Comp time:" + (end-start));
 	            
+	            //SEQUENTIAL
+	            // MAKE TRAD MUTANTS HERE
+//	            start = System.currentTimeMillis();
+//	            OGtmGenEngine.makeMutants();
+//	            //end = System.currentTimeMillis();
+//	            //System.out.println("OG Trad Gen time:" + (end-start));
+//	            
+//	            // COMPILE HERE
+//	            //start = System.currentTimeMillis();
+//	            OGtmGenEngine.compileMutants();
+//	            end = System.currentTimeMillis();
+//	            System.out.println("OG Trad time:" + (end-start));
+
 	            
             }
 

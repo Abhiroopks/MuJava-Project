@@ -17,6 +17,8 @@ package mujava.op.util;
 
 import mujava.*;
 import java.io.*;
+import java.util.ArrayList;
+
 import openjava.mop.*;
 import openjava.ptree.*;
 
@@ -29,6 +31,8 @@ import openjava.ptree.*;
 
 public class Mutator extends mujava.openjava.extension.VariableBinder
 {
+	
+	public ArrayList<String> mutfiles = null;
    public int num = 0;
    public CompilationUnit comp_unit = null;
    //-------------------------------------
@@ -38,6 +42,7 @@ public class Mutator extends mujava.openjava.extension.VariableBinder
    {
       super( env );
       this.comp_unit = comp_unit;
+      this.mutfiles = new ArrayList<String>();
    }
 
    //--------------
@@ -204,6 +209,9 @@ public class Mutator extends mujava.openjava.extension.VariableBinder
 
    public PrintWriter getPrintWriter(String f_name) throws IOException
    {
+	   
+	   // Add this file to the list of created files?
+	   this.mutfiles.add(f_name);
       File outfile = new File(f_name);
       FileWriter fout = new FileWriter( outfile );
       PrintWriter out = new PrintWriter( fout );

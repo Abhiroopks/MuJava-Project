@@ -11,9 +11,10 @@ Visit http://cs.gmu.edu/~offutt/mujava for details.
 * 10/18/2020
 	* Added checkbox in TestRun GUI for parallel functionality.
 	* Allow testrun threads to timeout in case of infinite loop mutants
+* 10/24/2020
+	* Added multithreading for generation phase. Pushes mutant ops to idle processors. Threads will also compile mutations in parallel.
 
 ## Notes
 * Currently, only the GUI was used to test correctness (shouldn't matter though)
 * Only tested in Eclipse IDE so far
 * Need framework to test performance
-* Need to parallelize mutant generation

@@ -50,14 +50,22 @@ package mujava;
 
 import openjava.ptree.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import mujava.op.basic.*;
 import mujava.op.util.*;
 import mujava.util.Debug;
+import mujava.util.MutantDirFilter;
 
 
 public class TraditionalMutantsGenerator extends MutantsGenerator
 {
    String[] traditionalOp;
+   ExecutorService executorService = Executors.newWorkStealingPool();
+
 
    public TraditionalMutantsGenerator(File f) 
    {
@@ -124,14 +132,38 @@ public class TraditionalMutantsGenerator extends MutantsGenerator
             BufferedReader reader = new BufferedReader(r);
             String str = reader.readLine();
             
-            while (str != null)
-            {
-               MutationSystem.MUTANT_PATH = original_tm_path + "/" + str;
-               super.compileMutants();
-               str = reader.readLine();
+            ArrayList<CompMutantThread> compthreads = new ArrayList<CompMutantThread>();
+            
+            
+            // iterate over each method of this class
+            while (str != null){
+            	String mut_path = original_tm_path + "/" + str;
+            	//MutationSystem.MUTANT_PATH = original_tm_path + "/" + str;
+            	//super.compileMutants();
+            	File muts = new File(mut_path);
+            	// list of all mutants for this method
+     	       	String[] s = muts.list(new MutantDirFilter());
+     	       	for(String mut : s) {
+         	       	compthreads.add(new CompMutantThread(mut_path + "/" + mut));
+     	       	}
+
+     	       	str = reader.readLine();
+     	       	
             }
             reader.close();
             MutationSystem.MUTANT_PATH = original_tm_path;
+            
+            // invoke all the tasks to thread pool and block until ALL finish
+            // shouldn't get stuck because each task has time limit
+            executorService.invokeAll(compthreads).forEach(t -> {
+       		try {
+       			t.get();
+       		} catch (InterruptedException | ExecutionException e) {
+       			e.printStackTrace();
+       		}
+       	});
+            
+            
          } catch (Exception e)
          {
         	e.printStackTrace();
@@ -146,9 +178,8 @@ public class TraditionalMutantsGenerator extends MutantsGenerator
     *      SOR, LOR, LOI, LOD, ASRS, SID, SWD, SFD, SSD 
     * @param cdecls
     */
-   void genTraditionalMutants(ClassDeclarationList cdecls)
-   {
-
+   void genTraditionalMutants(ClassDeclarationList cdecls){
+	   
       for (int j=0; j<cdecls.size(); ++j)
       {
          ClassDeclaration cdecl = cdecls.get(j);
@@ -182,161 +213,32 @@ public class TraditionalMutantsGenerator extends MutantsGenerator
                   System.err.println("Error in writing method list");
                   return;
                }
-
-               if (hasOperator (traditionalOp, "AORB") )
-               {
-                  Debug.println("  Applying AOR-Binary ... ... ");
-//                  AOR_FLAG = true;
-                  mutant_op = new AORB(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
                
-               if (hasOperator (traditionalOp, "AORS") )
-               {
-                  Debug.println("  Applying AOR-Short-Cut ... ... ");
-//                  AOR_FLAG = true;
-                  mutant_op = new AORS(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-
-               if (hasOperator (traditionalOp, "AODU") ) 
-               {
-                  Debug.println("  Applying AOD-Normal-Unary ... ... ");
-                  mutant_op = new AODU(file_env, cdecl, comp_unit);
-//                  ((AODU)mutant_op).setAORflag(AOR_FLAG);
-                  comp_unit.accept(mutant_op);
-               }
-          
-               if (hasOperator (traditionalOp, "AODS") )
-               {
-                  Debug.println("  Applying AOD-Short-Cut ... ... ");
-                  mutant_op = new AODS(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
                
-               if (hasOperator (traditionalOp, "AOIU") )
-               {
-                  Debug.println("  Applying AOI-Normal-Unary ... ... ");
-                  mutant_op = new AOIU(file_env,cdecl,comp_unit);
-//                  ((AOIU)mutant_op).setAORflag(AOR_FLAG);
-                  comp_unit.accept(mutant_op);
-               }
-               
-               if (hasOperator (traditionalOp, "AOIS") )
-               {
-                  Debug.println("  Applying AOI-Short-Cut ... ... ");
-                  mutant_op = new AOIS(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-               
-               if (hasOperator (traditionalOp, "ROR") )
-               {
-                  Debug.println("  Applying ROR ... ... ");
-                  mutant_op = new ROR(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
+	               // MAKE ALL TRAD MUTATIONS HERE
+	               // list of tasks
+	               ArrayList<GenTradMutThread> genthreads = new ArrayList<GenTradMutThread>();
+	               
+	               for(String mut : traditionalOp) {
+	            	   genthreads.add(new GenTradMutThread(mut,file_env,cdecl,comp_unit));
+	               }
+	               
+	               //executorService = Executors.newWorkStealingPool();
+	               
+	               // invoke all the tasks to thread pool and block until ALL finish
+	               // shouldn't get stuck because each task has time limit
+	               executorService.invokeAll(genthreads).forEach(f -> {
+	          		try {
+	          			f.get();
+	          		} catch (InterruptedException | ExecutionException e) {
+	          			e.printStackTrace();
+	          		}
+	          	});
 
-               if (hasOperator (traditionalOp, "COR") )
-               {
-                  Debug.println("  Applying COR ... ... ");
-                  mutant_op = new COR(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-
-               if (hasOperator (traditionalOp, "COD") ) 
-               {
-                  Debug.println("  Applying COD ... ... ");
-                  mutant_op = new COD(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-
-               if (hasOperator (traditionalOp, "COI") )
-               {
-                  Debug.println("  Applying COI ... ... ");
-                  mutant_op = new COI(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-
-               if (hasOperator (traditionalOp, "SOR") )
-               {
-                  Debug.println("  Applying SOR ... ... ");
-                  mutant_op = new SOR(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-
-               if (hasOperator (traditionalOp, "LOR") )
-               {
-                  Debug.println("  Applying LOR ... ... ");
-                  mutant_op = new LOR(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-
-               if (hasOperator (traditionalOp, "LOI") )
-               {
-                  Debug.println("  Applying LOI ... ... ");
-                  mutant_op = new LOI(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-
-               if (hasOperator (traditionalOp, "LOD") )
-               { 
-                  Debug.println("  Applying LOD ... ... ");
-                  mutant_op = new LOD(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-
-               if (hasOperator (traditionalOp, "ASRS") )
-               {
-                  Debug.println("  Applying ASR-Short-Cut ... ... ");
-                  mutant_op = new ASRS(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-     
-               if (hasOperator (traditionalOp, "SDL") )
-               {
-                  Debug.println("  Applying SDL ... ... ");
-                  mutant_op = new SDL(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-               if (hasOperator (traditionalOp, "VDL") )
-               {
-                  Debug.println("  Applying VDL ... ... ");
-                  mutant_op = new VDL(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-               if (hasOperator (traditionalOp, "ODL") )
-               {
-                  Debug.println("  Applying ODL ... ... ");
-                  mutant_op = new ODL(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-               if (hasOperator (traditionalOp, "CDL") )
-               {
-                  Debug.println("  Applying CDL ... ... ");
-                  mutant_op = new CDL(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-/*
-               if (hasOperator (traditionalOp, "SID") )
-               {
-                  Debug.println("  Applying SID ... ... ");
-                  mutant_op = new SID(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-
-               if (hasOperator (traditionalOp, "SWD") )
-               {
-                  Debug.println("  Applying SWD ... ... ");
-                  mutant_op = new SWD(file_env, cdecl, comp_unit);
-                  comp_unit.accept(mutant_op);
-               }
-*/
-            } catch (ParseTreeException e)
-            {
-               System.err.println( "Exception, during generating traditional mutants for the class "
-                              + MutationSystem.CLASS_NAME);
-               e.printStackTrace();
-            }
+            	}catch (InterruptedException e) {
+	            	System.err.println("Trad mutant gen thread execution interrupted exception.");
+					e.printStackTrace();
+            	}
          }
       }
    }

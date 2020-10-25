@@ -424,6 +424,7 @@ public abstract class MutantsGenerator
       
       String[] s = f.list(new MutantDirFilter());
 
+      // iterate over each mutant of this method
       for (int i=0; i<s.length; i++)
       {
          File target_dir = new File(MutationSystem.MUTANT_PATH + "/" + s[i]);

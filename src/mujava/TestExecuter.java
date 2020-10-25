@@ -92,7 +92,7 @@ public class TestExecuter {
   //results as to how many tests can kill each single mutant  
   Map<String, String> finalMutantResults = new HashMap<String, String>(1);
   
-	ExecutorService executorService;
+  ExecutorService executorService = Executors.newWorkStealingPool();
   
 
   public TestExecuter(String targetClassName) {
@@ -364,7 +364,7 @@ public class TestExecuter {
       int mutant_num = mutantDirectories.length;
       test_result.setMutants();
       
-      executorService = Executors.newWorkStealingPool();
+      //executorService = Executors.newWorkStealingPool();
       
       for(int i = 0;i < mutant_num;i++){
           // set live mutnats
