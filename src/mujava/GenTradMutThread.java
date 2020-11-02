@@ -1,18 +1,18 @@
 package mujava;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
 import com.sun.tools.javac.Main;
 
+import mujava.cli.Util;
 import mujava.op.util.Mutator;
+import mujava.util.Debug;
 import openjava.mop.FileEnvironment;
 import openjava.ptree.ClassDeclaration;
 import openjava.ptree.CompilationUnit;
-import mujava.op.basic.*;
 
 
 public class GenTradMutThread implements Callable<Void> {
@@ -62,31 +62,74 @@ public class GenTradMutThread implements Callable<Void> {
 		// generate mutant
 		this.comp_unit.accept(mutant_op);
 		
-		// COMPILE MUTANTS
 		
-		String[] pars = new String[3];
-        pars[0] = "-classpath";
-        pars[1] = MutationSystem.CLASS_PATH;
-        
-        ArrayList<CompMutantThread2> compthreads = new ArrayList<CompMutantThread2>();
-        
-        
-        for(String mut : this.mutant_op.mutfiles) {
-        	pars[2] = mut;
-        	compthreads.add(new CompMutantThread2(pars));
-        }
-        
-        Executors.newWorkStealingPool().invokeAll(compthreads).forEach(t -> {
-			try {
-				t.get();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});;
+		// Compile mutants
+		 String[] pars = new String[3];
+	     pars[0] = "-classpath";
+	     pars[1] = MutationSystem.CLASS_PATH;
+	     
+	     for(String mut : mutant_op.mutfiles) {
+	    	 try
+	         {
+	        // result = 0 : SUCCESS,   result = 1 : FALSE
+	        //int result = Main.compile(pars,new PrintWriter(new FileOutputStream("temp")));
+	        	 
+	        	 /*
+	        	  * 12/19/13 Lin modified:
+	        	  * if not in debug mode, for not showing the compile result when some 
+	        	  * mutants can't pass compiler
+	        	  * if in debug mode, display
+	        	  */
+	    		 
+	    		 	pars[2] = mut;
+	        	 
+	 				int result;
+	 				if (!Util.debug)
+	 					result = Main.compile(pars);
+	 				else {
+	 					File tempCompileResultFile = new File(
+	 							MutationSystem.SYSTEM_HOME + "/compile_output");
+	 					PrintWriter out = new PrintWriter(tempCompileResultFile);
+
+	 					result = Main.compile(pars, out);
+	 					tempCompileResultFile.delete();
+	 				}
+	            
+	            if (result == 0)
+	            {
+	               Debug.print("+" + mut + "   ");
+	               //counter++;
+	            }
+	            else
+	            {
+	               Debug.print("-" + mut + "   ");
+	             // delete directory
+	               File dir_name = new File(MutationSystem.MUTANT_PATH + "/" + mut);
+	               File[] mutants = dir_name.listFiles();
+	               boolean tr = false;
+	               
+	               for (int j=0; j<mutants.length; j++)
+	               {
+	            // [tricky solution] It can produce loop -_-;;
+	                  while (!tr)
+	                  {
+	                     tr = mutants[j].delete();
+	                  }
+	                  tr = false;
+	               }
+	               
+	               while (!tr)
+	               {
+	                  tr = dir_name.delete();
+	               }
+	            }
+	         } 
+	         catch (Exception e)
+	         {
+	            System.err.println(e);
+	         }
+	     }
+
         
 
 		return null;

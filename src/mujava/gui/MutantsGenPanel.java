@@ -119,7 +119,7 @@ public class MutantsGenPanel extends JPanel
       JPanel filePanel = new JPanel();
       filePanel.setLayout(new BorderLayout());
       JScrollPane fileSP = new JScrollPane();
-      FileTableModel fTableModel = new FileTableModel(MutationSystem.getNewTragetFiles());
+      FileTableModel fTableModel = new FileTableModel(MutationSystem.getNewTargetFiles());
       fileTable = new JTable(fTableModel);
       initFileColumnSizes(fileTable,fTableModel);
       fileSP.getViewport().add(fileTable, null);
@@ -413,6 +413,8 @@ public class MutantsGenPanel extends JPanel
       runB.setEnabled(false);
       
       // iterate over each class file selected
+      long start = System.currentTimeMillis();
+
       for (int i=0; i<file_list.length; i++)
       {
       // file_name = ABSTRACT_PATH - MutationSystem.SRC_PATH
@@ -493,14 +495,11 @@ public class MutantsGenPanel extends JPanel
             //do not generate class mutants if no class mutation operator is selected
             if(class_ops != null){
 	            cmGenEngine = new ClassMutantsGenerator(original_file,class_ops);   
-	            long start = System.currentTimeMillis();
 	            cmGenEngine.makeMutants();      
-	            long end = System.currentTimeMillis();
-	            System.out.println("Class Mutants Gen time:" + (end-start));
-	            start = System.currentTimeMillis();
+	           
+
 	            cmGenEngine.compileMutants();
-	            end = System.currentTimeMillis();
-	            System.out.println("Class Mutants Comp time:" + (end-start));
+
             }
             
             //do not generate traditional mutants if no class traditional operator is selected
@@ -511,15 +510,14 @@ public class MutantsGenPanel extends JPanel
 	            OGTraditionalMutantsGenerator OGtmGenEngine;
 	            OGtmGenEngine = new OGTraditionalMutantsGenerator(original_file,traditional_ops);
 	            
-	            long start,end;
 
 	            
 	            // PARALLEL
 	            // MAKE TRAD MUTANTS HERE
-	            start = System.currentTimeMillis();
 	            tmGenEngine.makeMutants();
-	            end = System.currentTimeMillis();
-	            System.out.println("Parallel Trad time:" + (end-start));
+	            //tmGenEngine.compileMutants();
+
+
 	            
 //	            // COMPILE HERE
 //	            start = System.currentTimeMillis();
@@ -565,9 +563,13 @@ public class MutantsGenPanel extends JPanel
             deleteDirectory();
          }
       }
+      long end = System.currentTimeMillis();
+      System.out.println("Mutants Gen time:" + (end-start));
+      
       runB.setEnabled(true);
       parent_frame.cvPanel.refreshEnv();
       parent_frame.tvPanel.refreshEnv();
+      
       System.out.println("------------------------------------------------------------------");
       System.out.println("All files are handled");
    }

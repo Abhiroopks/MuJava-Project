@@ -54,6 +54,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import mujava.op.basic.*;
 import mujava.op.util.*;
@@ -132,7 +133,8 @@ public class TraditionalMutantsGenerator extends MutantsGenerator
             BufferedReader reader = new BufferedReader(r);
             String str = reader.readLine();
             
-            ArrayList<CompMutantThread> compthreads = new ArrayList<CompMutantThread>();
+            //ArrayList<CompMutantThread> compthreads = new ArrayList<CompMutantThread>();
+            ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>();
             
             
             // iterate over each method of this class
@@ -143,9 +145,15 @@ public class TraditionalMutantsGenerator extends MutantsGenerator
             	File muts = new File(mut_path);
             	// list of all mutants for this method
      	       	String[] s = muts.list(new MutantDirFilter());
-     	       	for(String mut : s) {
-         	       	compthreads.add(new CompMutantThread(mut_path + "/" + mut));
+     	       	
+     	       	//submit each task to the exec service immediately
+     	       	for(int i = 0; i < s.length; i++) {
+     	       		futures.add(executorService.submit(new CompMutantThread(mut_path + "/" + s[i])));
      	       	}
+//     	       	for(String mut : s) {
+//         	       	compthreads.add(new CompMutantThread(mut_path + "/" + mut));
+//         	       	executorService.su
+//     	       	}
 
      	       	str = reader.readLine();
      	       	
@@ -153,15 +161,20 @@ public class TraditionalMutantsGenerator extends MutantsGenerator
             reader.close();
             MutationSystem.MUTANT_PATH = original_tm_path;
             
-            // invoke all the tasks to thread pool and block until ALL finish
-            // shouldn't get stuck because each task has time limit
-            executorService.invokeAll(compthreads).forEach(t -> {
-       		try {
-       			t.get();
-       		} catch (InterruptedException | ExecutionException e) {
-       			e.printStackTrace();
-       		}
-       	});
+            // wait for each to finish
+            for(Future<Void> fut : futures) {
+            	fut.get();
+            }
+            
+//            // invoke all the tasks to thread pool and block until ALL finish
+//            // shouldn't get stuck because each task has time limit
+//            executorService.invokeAll(compthreads).forEach(t -> {
+//       		try {
+//       			t.get();
+//       		} catch (InterruptedException | ExecutionException e) {
+//       			e.printStackTrace();
+//       		}
+//       	});
             
             
          } catch (Exception e)
@@ -218,24 +231,29 @@ public class TraditionalMutantsGenerator extends MutantsGenerator
 	               // MAKE ALL TRAD MUTATIONS HERE
 	               // list of tasks
 	               ArrayList<GenTradMutThread> genthreads = new ArrayList<GenTradMutThread>();
+	               ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>();
+
 	               
 	               for(String mut : traditionalOp) {
 	            	   genthreads.add(new GenTradMutThread(mut,file_env,cdecl,comp_unit));
+	            	   futures.add(executorService.submit(new GenTradMutThread(mut,file_env,cdecl,comp_unit)));
 	               }
 	               
-	               //executorService = Executors.newWorkStealingPool();
+	               for(Future<Void> fut : futures) {
+	            	   fut.get();
+	               }
+	               
 	               
 	               // invoke all the tasks to thread pool and block until ALL finish
-	               // shouldn't get stuck because each task has time limit
-	               executorService.invokeAll(genthreads).forEach(f -> {
-	          		try {
-	          			f.get();
-	          		} catch (InterruptedException | ExecutionException e) {
-	          			e.printStackTrace();
-	          		}
-	          	});
+//	               executorService.invokeAll(genthreads).forEach(f -> {
+//	          		try {
+//	          			f.get();
+//	          		} catch (InterruptedException | ExecutionException e) {
+//	          			e.printStackTrace();
+//	          		}
+//	          	});
 
-            	}catch (InterruptedException e) {
+            	}catch (InterruptedException | ExecutionException e) {
 	            	System.err.println("Trad mutant gen thread execution interrupted exception.");
 					e.printStackTrace();
             	}

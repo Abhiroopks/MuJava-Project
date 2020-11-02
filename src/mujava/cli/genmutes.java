@@ -60,6 +60,9 @@ public class genmutes {
 	public static void main(String[] args) throws Exception {
 		// System.out.println("test");
 		genmutesCom jct = new genmutesCom();
+		ArrayList<String> jctparams = new ArrayList<String>();
+		jctparams.add("-AORB");
+		jct.setParameters(jctparams);
 		String[] argv = { "-sdl", "-debug", "cal" }; // development use, when release,
 												// comment out this line
 		JCommander jCommander = new JCommander(jct, args);

@@ -25,8 +25,7 @@ import mujava.util.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.net.URLClassLoader;
+
 import java.util.Vector;
 
 /**
@@ -343,14 +342,14 @@ public class MutationSystem extends OJSystem
    }
 
    /* Set up target files (stored in src folder) to be tested */
-   public static Vector getNewTragetFiles()
+   public static Vector<String> getNewTargetFiles()
    {
-      Vector targetFiles = new Vector();
+      Vector<String> targetFiles = new Vector<String>();
       getJavacArgForDir (MutationSystem.SRC_PATH, "", targetFiles);
       return targetFiles;
    }
 
-   protected static String getJavacArgForDir (String dir, String str, Vector targetFiles)
+   protected static String getJavacArgForDir (String dir, String str, Vector<String> targetFiles)
    {
       String result = str;
       String temp = "";
@@ -484,10 +483,11 @@ public class MutationSystem extends OJSystem
          bad[i] = false;
          try
          {       	
-         	String classpath = System.getProperty("java.class.path");
+         	//String classpath = System.getProperty("java.class.path");
          	//add the class path dynamically
          	// Since Java 9, the addURL method does not work anymore
          	// due to changes in the ClassLoader / URLClassLoader inheritance
+         	//TODO find way to add to CLASSPATH dynamically
          	//addURL(MutationSystem.CLASS_PATH);
             //create a new class from the class name
             Class c = Class.forName(classes[i]);
@@ -604,11 +604,13 @@ public static void addURL(String classPath) throws Exception {
    *  <p> ** CAUTION : this function or `setJMutationStructure(String home_path)' should be called before generating and running mutants. */
    public static void setJMutationStructure()
    {
+	   
+	   BufferedReader reader;
       try 
       {
          File f = new File (MutationSystem.SYSTEM_HOME + "\\muJava-master/mujava.config");
          FileReader r = new FileReader(f);
-         BufferedReader reader = new BufferedReader(r);
+         reader = new BufferedReader(r);
          String str = reader.readLine();
          String home_path = str.substring("MuJava_HOME=".length(), str.length());
          SYSTEM_HOME = home_path;
@@ -616,6 +618,7 @@ public static void addURL(String classPath) throws Exception {
          CLASS_PATH = home_path + "\\classes";
          MUTANT_HOME = home_path + "\\result";
          TESTSET_PATH = home_path + "\\testset";
+         reader.close();
       } catch (FileNotFoundException e1)
       {
          System.err.println("[ERROR] Can't find mujava.config file");
@@ -624,6 +627,7 @@ public static void addURL(String classPath) throws Exception {
       {
          e.printStackTrace();
       }
+
    }
 
   /** <p> Recognize file structure for mutation system from not "mujava.config" but from user directly </p>*/
@@ -655,6 +659,7 @@ public static void addURL(String classPath) throws Exception {
          CLASS_PATH = home_path + "/classes";
          MUTANT_HOME = home_path + "/result";
          TESTSET_PATH = home_path + "/testset";
+         reader.close();
       } catch (FileNotFoundException e1)
       {
          System.err.println("[ERROR] Can't find mujava.config file");

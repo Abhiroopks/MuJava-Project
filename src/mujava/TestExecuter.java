@@ -363,9 +363,7 @@ public class TestExecuter {
       
       int mutant_num = mutantDirectories.length;
       test_result.setMutants();
-      
-      //executorService = Executors.newWorkStealingPool();
-      
+            
       for(int i = 0;i < mutant_num;i++){
           // set live mutnats
           test_result.mutants.add(mutantDirectories[i]);
@@ -379,15 +377,18 @@ public class TestExecuter {
       Debug.println("\n\n======================================== Executing Mutants ========================================");
             
       List<TestThread> testthreads = new ArrayList<TestThread>();  
+      ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>();
 
       for(int i = 0; i < test_result.mutants.size(); i++){
         // read the information for the "i"th live mutant
     	
     	String mutant_name = test_result.mutants.get(i).toString();
+    	futures.add(executorService.submit(new TestThread(mutant_name,whole_class_name,testSet,
+    			testCases,test_result,originalResults,TIMEOUT)));
 
     
-    	testthreads.add(new TestThread(mutant_name,whole_class_name,testSet,
-    			testCases,test_result,originalResults,TIMEOUT));
+    	//testthreads.add(new TestThread(mutant_name,whole_class_name,testSet,
+    		//	testCases,test_result,originalResults,TIMEOUT));
 
         //Debug.print("  " + mutant_name);
        
@@ -398,23 +399,19 @@ public class TestExecuter {
       // END LOOP FOR MUTANTS
 
       
+      for(Future<Void> fut : futures) {
+    	  fut.get();
+      }
+      
      // invoke all the tasks to thread pool and block until ALL finish
      // shouldn't get stuck because each task has time limit
-     executorService.invokeAll(testthreads).forEach(f -> {
-		try {
-			f.get();
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
-		}
-	});
-     
-     
-      
-      
-      
-      
-      
-  
+//     executorService.invokeAll(testthreads).forEach(f -> {
+//		try {
+//			f.get();
+//		} catch (InterruptedException | ExecutionException e) {
+//			e.printStackTrace();
+//		}
+//	});
 
       }catch(NoMutantException e1){
       throw e1;

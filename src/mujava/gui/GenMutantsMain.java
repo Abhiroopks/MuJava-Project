@@ -72,7 +72,7 @@ public class GenMutantsMain extends JFrame
 	  e.printStackTrace();
 	  return;
       }
-      MutationSystem.recordInheritanceRelation();
+      //MutationSystem.recordInheritanceRelation();
       GenMutantsMain main = new GenMutantsMain();
       try {
 	  main.pack();
