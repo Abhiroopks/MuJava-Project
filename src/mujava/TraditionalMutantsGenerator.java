@@ -51,39 +51,55 @@ package mujava;
 import openjava.ptree.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
+import javax.tools.ToolProvider;
+
 import mujava.op.basic.*;
 import mujava.op.util.*;
 import mujava.util.Debug;
-import mujava.util.MutantDirFilter;
 
 
-public class TraditionalMutantsGenerator extends MutantsGenerator
+public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 {
    String[] traditionalOp;
    ExecutorService executorService = Executors.newWorkStealingPool();
+   ConcurrentHashMap<String,String> mutantSource = null;
+   ConcurrentHashMap<String,byte[]> mutantClass = null;
 
 
-   public TraditionalMutantsGenerator(File f) 
+   public TraditionalMutantsGenerator(File f, MutantData md) 
    {
       super(f);
       traditionalOp = MutationSystem.tm_operators;
+      this.mutantSource = md.mutantSource;
+      this.mutantClass = md.mutantClass;
+      
    }
    
-   public TraditionalMutantsGenerator(File f, boolean debug) 
+   public TraditionalMutantsGenerator(File f, boolean debug, MutantData md) 
    {
       super (f, debug);
       traditionalOp = MutationSystem.tm_operators;
+      this.mutantSource = md.mutantSource;
+      this.mutantClass = md.mutantClass;
    }
 
-   public TraditionalMutantsGenerator(File f, String[] tOP) 
+   public TraditionalMutantsGenerator(File f, String[] tOP, MutantData md) 
    {
       super(f);
       traditionalOp = tOP;
+      this.mutantSource = md.mutantSource;
+      this.mutantClass = md.mutantClass;
    }
 
    /** 
@@ -120,70 +136,73 @@ public class TraditionalMutantsGenerator extends MutantsGenerator
    /**
     * Compile traditional mutants into bytecode 
     */
-   public void compileMutants()
-   {
-      if (traditionalOp != null && traditionalOp.length > 0)
-      {
-         try
-         {
-            Debug.println("* Compiling traditional mutants into bytecode");
-            String original_tm_path = MutationSystem.TRADITIONAL_MUTANT_PATH;
-            File f = new File(original_tm_path, "method_list");
-            FileReader r = new FileReader(f);
-            BufferedReader reader = new BufferedReader(r);
-            String str = reader.readLine();
-            
-            //ArrayList<CompMutantThread> compthreads = new ArrayList<CompMutantThread>();
-            ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>();
-            
-            
-            // iterate over each method of this class
-            while (str != null){
-            	String mut_path = original_tm_path + "/" + str;
-            	//MutationSystem.MUTANT_PATH = original_tm_path + "/" + str;
-            	//super.compileMutants();
-            	File muts = new File(mut_path);
-            	// list of all mutants for this method
-     	       	String[] s = muts.list(new MutantDirFilter());
-     	       	
-     	       	//submit each task to the exec service immediately
-     	       	for(int i = 0; i < s.length; i++) {
-     	       		futures.add(executorService.submit(new CompMutantThread(mut_path + "/" + s[i])));
-     	       	}
-//     	       	for(String mut : s) {
-//         	       	compthreads.add(new CompMutantThread(mut_path + "/" + mut));
-//         	       	executorService.su
+   
+   
+//   public void compileMutants()
+//   {
+//      if (traditionalOp != null && traditionalOp.length > 0)
+//      {
+//         try
+//         {
+//            Debug.println("* Compiling traditional mutants into bytecode");
+//            String original_tm_path = MutationSystem.TRADITIONAL_MUTANT_PATH;
+//            File f = new File(original_tm_path, "method_list");
+//            FileReader r = new FileReader(f);
+//            BufferedReader reader = new BufferedReader(r);
+//            String str = reader.readLine();
+//            
+//            //ArrayList<CompMutantThread> compthreads = new ArrayList<CompMutantThread>();
+//            ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>();
+//            
+//            
+//            // iterate over each method of this class
+//            while (str != null){
+//            	String mut_path = original_tm_path + "/" + str;
+//            	//MutationSystem.MUTANT_PATH = original_tm_path + "/" + str;
+//            	//super.compileMutants();
+//            	File muts = new File(mut_path);
+//            	// list of all mutants for this method
+//     	       	String[] s = muts.list(new MutantDirFilter());
+//     	       	
+//     	       	//submit each task to the exec service immediately
+//     	       	for(int i = 0; i < s.length; i++) {
+//     	       		futures.add(executorService.submit(new FileGenThread(mut_path + "/" + s[i])));
 //     	       	}
-
-     	       	str = reader.readLine();
-     	       	
-            }
-            reader.close();
-            MutationSystem.MUTANT_PATH = original_tm_path;
-            
-            // wait for each to finish
-            for(Future<Void> fut : futures) {
-            	fut.get();
-            }
-            
-//            // invoke all the tasks to thread pool and block until ALL finish
-//            // shouldn't get stuck because each task has time limit
-//            executorService.invokeAll(compthreads).forEach(t -> {
-//       		try {
-//       			t.get();
-//       		} catch (InterruptedException | ExecutionException e) {
-//       			e.printStackTrace();
-//       		}
-//       	});
-            
-            
-         } catch (Exception e)
-         {
-        	e.printStackTrace();
-            System.err.println("Error at compileMutants() in TraditionalMutantsGenerator.java");
-         }
-      }
-   }
+////     	       	for(String mut : s) {
+////         	       	compthreads.add(new CompMutantThread(mut_path + "/" + mut));
+////         	       	executorService.su
+////     	       	}
+//
+//     	       	str = reader.readLine();
+//     	       	
+//            }
+//            reader.close();
+//            MutationSystem.MUTANT_PATH = original_tm_path;
+//            
+//            // wait for each to finish
+//            for(Future<Void> fut : futures) {
+//            	fut.get();
+//            }
+//            
+////            // invoke all the tasks to thread pool and block until ALL finish
+////            // shouldn't get stuck because each task has time limit
+////            executorService.invokeAll(compthreads).forEach(t -> {
+////       		try {
+////       			t.get();
+////       		} catch (InterruptedException | ExecutionException e) {
+////       			e.printStackTrace();
+////       		}
+////       	});
+// */
+//            
+//            
+//         } catch (Exception e)
+//         {
+//        	e.printStackTrace();
+//            System.err.println("Error at compileMutants() in TraditionalMutantsGenerator.java");
+//         }
+//      }
+//   }
 
    /**
     * Apply selected traditional mutation operators: 
@@ -229,29 +248,45 @@ public class TraditionalMutantsGenerator extends MutantsGenerator
                
                
 	               // MAKE ALL TRAD MUTATIONS HERE
-	               // list of tasks
-	               ArrayList<GenTradMutThread> genthreads = new ArrayList<GenTradMutThread>();
 	               ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>();
 
 	               
+	               // submit generation tasks to processors
+	               // each thread should use a local map, then merge with global
 	               for(String mut : traditionalOp) {
-	            	   genthreads.add(new GenTradMutThread(mut,file_env,cdecl,comp_unit));
-	            	   futures.add(executorService.submit(new GenTradMutThread(mut,file_env,cdecl,comp_unit)));
+	            	   futures.add(executorService.submit(new GenTradMutThread(mut,file_env,cdecl,comp_unit,mutantSource)));
 	               }
-	               
+	               // wait for all tasks to finish
 	               for(Future<Void> fut : futures) {
 	            	   fut.get();
 	               }
 	               
+	              	               
+	               // compile
 	               
-	               // invoke all the tasks to thread pool and block until ALL finish
-//	               executorService.invokeAll(genthreads).forEach(f -> {
-//	          		try {
-//	          			f.get();
-//	          		} catch (InterruptedException | ExecutionException e) {
-//	          			e.printStackTrace();
-//	          		}
-//	          	});
+	               
+	               ArrayList<String> options = new ArrayList<String>(2);
+	               options.add("-cp");
+	               options.add(MutationSystem.CLASS_PATH);
+	               
+	               JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
+	               futures.clear();
+	               
+
+	               // now compile each mutant and store in memory
+	               for(Map.Entry<String,String> e : mutantSource.entrySet()) {
+	            	   futures.add(executorService.submit(new CompMutThread(mutantSource, e, mutantClass, tempName,options,compiler)));
+	               }
+	               
+	               // wait for all tasks to finish
+	               for(Future<Void> fut : futures) {
+	            	   fut.get();
+	               }
+	               
+	               assert(mutantSource.size() == mutantClass.size());
+
+
 
             	}catch (InterruptedException | ExecutionException e) {
 	            	System.err.println("Trad mutant gen thread execution interrupted exception.");

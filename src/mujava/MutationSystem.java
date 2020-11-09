@@ -149,6 +149,8 @@ public class MutationSystem extends OJSystem
    // Upsorn: (05/18/2009) added mutation operators' description
    public static String[] op_desc = {   "" };
    
+   public static boolean isParallel;
+   
    
    
 

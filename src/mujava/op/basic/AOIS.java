@@ -118,7 +118,10 @@ public class AOIS extends Arithmetic_OP
 		 writer.setMutant(original_field, mutant);
          writer.setMethodSignature(currentMethodSignature);
 		 comp_unit.accept( writer );
-		 out.flush();  out.close();
+		 // instead of writing to a file, compile this code now and store in memory
+		 
+		 out.flush();
+		 out.close();
       } catch ( IOException e ) {
 		 System.err.println( "fails to create " + f_name );
       } catch ( ParseTreeException e ) {
@@ -144,6 +147,7 @@ public class AOIS extends Arithmetic_OP
 
       try 
       {
+    	  
 		 PrintWriter out = getPrintWriter(f_name);
 		 AOIS_Writer writer = new AOIS_Writer(mutant_dir, out);
 		 writer.setMutant(original_var, mutant);

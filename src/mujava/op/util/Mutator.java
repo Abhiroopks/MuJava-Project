@@ -18,6 +18,7 @@ package mujava.op.util;
 import mujava.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import openjava.mop.*;
 import openjava.ptree.*;
@@ -37,12 +38,22 @@ public class Mutator extends mujava.openjava.extension.VariableBinder
    public CompilationUnit comp_unit = null;
    //-------------------------------------
    public FileEnvironment file_env = null;
+   //public HashMap<String,String> mutantSource = null;
+   public MyPrintWriter myprintwriter = null;
 
    public Mutator( Environment env, CompilationUnit comp_unit ) 
    {
       super( env );
       this.comp_unit = comp_unit;
       this.mutfiles = new ArrayList<String>();
+      if(MutationSystem.isParallel) {
+    	  this.myprintwriter = new MyPrintWriter(new StringWriter());
+      }
+   }
+   
+   // called by thread before creating mutants
+   public void setSourceMap(HashMap<String,String> map) {
+	   this.myprintwriter.mutantSource = map;
    }
 
    //--------------
@@ -210,12 +221,27 @@ public class Mutator extends mujava.openjava.extension.VariableBinder
    public PrintWriter getPrintWriter(String f_name) throws IOException
    {
 	   
-	   // Add this file to the list of created files?
-	   this.mutfiles.add(f_name);
-      File outfile = new File(f_name);
-      FileWriter fout = new FileWriter( outfile );
-      PrintWriter out = new PrintWriter( fout );
-      return out;
+	  // Add this file to the list of created files?
+	  this.mutfiles.add(f_name);
+	  
+	  // if parallel - store in memory
+	  if(MutationSystem.isParallel) {
+		  // tell the printwriter the name of this file - acts as key in map
+		  this.myprintwriter.currFile = f_name;
+		  return this.myprintwriter;
+	  }
+	  // standard way - write to disk
+	  else {
+		  PrintWriter out = null;
+		  // use standard version
+		  if(!MutationSystem.isParallel) {
+			  File outfile = new File(f_name);
+			  FileWriter fout = new FileWriter( outfile );
+			  out = new PrintWriter( fout );  
+		  }
+	
+		  return out;
+	  }
    }
 
    /**

@@ -506,39 +506,11 @@ public class MutantsGenPanel extends JPanel
             if(traditional_ops != null){
 	            TraditionalMutantsGenerator tmGenEngine;
 	            tmGenEngine = new TraditionalMutantsGenerator(original_file,traditional_ops);
-	            
-	            OGTraditionalMutantsGenerator OGtmGenEngine;
-	            OGtmGenEngine = new OGTraditionalMutantsGenerator(original_file,traditional_ops);
-	            
-
-	            
 	            // PARALLEL
 	            // MAKE TRAD MUTANTS HERE
 	            tmGenEngine.makeMutants();
 	            //tmGenEngine.compileMutants();
 
-
-	            
-//	            // COMPILE HERE
-//	            start = System.currentTimeMillis();
-//	            tmGenEngine.compileMutants();
-//	            end = System.currentTimeMillis();
-//	            System.out.println("Parallel Trad Comp time:" + (end-start));
-	            
-	            //SEQUENTIAL
-	            // MAKE TRAD MUTANTS HERE
-//	            start = System.currentTimeMillis();
-//	            OGtmGenEngine.makeMutants();
-//	            //end = System.currentTimeMillis();
-//	            //System.out.println("OG Trad Gen time:" + (end-start));
-//	            
-//	            // COMPILE HERE
-//	            //start = System.currentTimeMillis();
-//	            OGtmGenEngine.compileMutants();
-//	            end = System.currentTimeMillis();
-//	            System.out.println("OG Trad time:" + (end-start));
-
-	            
             }
 
          } catch (OpenJavaException oje)
@@ -642,6 +614,9 @@ public class MutantsGenPanel extends JPanel
          MutationSystem.ORIGINAL_PATH = original_dir_path;
          MutationSystem.DIR_NAME = temp;
       } catch(Exception e)
+      
+      
+      
       {
          System.err.println(e);
       }

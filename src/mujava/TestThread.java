@@ -34,19 +34,22 @@ public class TestThread implements Callable<Void>{
 	TestResultParallel tr;
 	Map<String, String> orig;
 	int TIMEOUT;
-	
+	String className;
+	String testName;
+	byte[] bytecode;
 
 	//constructor
 	TestThread(String mutantName, String className, String testName, Method[] testCases, 
-			TestResultParallel tr,Map<String,String> orig,int TIMEOUT) throws ClassNotFoundException, FileNotFoundException, IOException{
-		mutantLoader = new JMutationLoader(mutantName);
-		mutant = mutantLoader.loadMutant(className);
-        mutant_executer = mutantLoader.loadTestClass(testName);
+			TestResultParallel tr,Map<String,String> orig,int TIMEOUT,byte[] bytecode){
+
+		this.className = className;
         this.testCases = testCases;
         this.mutantName = mutantName;
+        this.testName = testName;
         this.tr = tr;
         this.orig = orig;
         this.TIMEOUT = TIMEOUT;
+        this.bytecode = bytecode;
 
         
         
@@ -55,7 +58,12 @@ public class TestThread implements Callable<Void>{
 
 	
 	@Override
-	public Void call() {
+	public Void call() throws ClassNotFoundException, FileNotFoundException, IOException {
+		mutantLoader = new JMutationLoader(mutantName);
+		//mutant = mutantLoader.loadMutant(className);
+		mutant = mutantLoader.loadMutantInMem(className, bytecode);
+		mutant_executer = mutantLoader.loadTestClass(testName);
+
 		
 		HashMap<String,String> mutantResults = new HashMap<String, String>();
 		for(int k = 0;k < testCases.length;k++){

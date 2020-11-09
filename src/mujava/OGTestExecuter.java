@@ -516,6 +516,10 @@ public class OGTestExecuter {
         System.out.println("  test " + (i+1) + "  kill  ==> " + killed_mutants[i]);
       }
 */
+      
+      System.out.println("\nMethod: " + methodSignature + "\nLive Mutants:\n" + tr.live_mutants);
+
+
     }catch(NoMutantException e1){
       throw e1;
     }catch(NoMutantDirException e2){

@@ -20,6 +20,7 @@ package mujava.test;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 
 import mujava.MutationSystem;
 
@@ -34,7 +35,8 @@ public class JMutationLoader extends ClassLoader{
 
   String mutant_name;
   boolean tt = false;
-
+  Map<String,byte[]> mutantClass = null;
+  
   public JMutationLoader()
   {
     super(null);
@@ -62,6 +64,11 @@ public class JMutationLoader extends ClassLoader{
     return result;
   }
 
+  public Class loadMutantInMem(String name, byte[] bytes) {
+	  
+	  return defineClass(name, bytes, 0, bytes.length);
+  }
+  
   // 
   public Class loadMutant(String name) throws ClassNotFoundException, FileNotFoundException, IOException{
 	  byte[] data = getClassData(name,MutationSystem.MUTANT_PATH+"/"+mutant_name);
@@ -72,7 +79,7 @@ public class JMutationLoader extends ClassLoader{
 	  
   }
   
-  public synchronized Class loadClass(String name) throws ClassNotFoundException
+  public Class loadClass(String name) throws ClassNotFoundException
   {
     // See if type has already been loaded by
     // this class loader

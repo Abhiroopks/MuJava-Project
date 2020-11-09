@@ -64,6 +64,8 @@ public class GenMutantsMain extends JFrame
    { 
       System.out.println("The main method starts");
       try {
+	  // always use parallel in GUI
+	  MutationSystem.isParallel = true;
 	  MutationSystem.setJMutationStructure();
       }
       catch (NoClassDefFoundError e) {

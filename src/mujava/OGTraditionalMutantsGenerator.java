@@ -50,6 +50,7 @@ package mujava;
 
 import openjava.ptree.*;
 import java.io.*;
+
 import mujava.op.basic.*;
 import mujava.op.util.*;
 import mujava.util.Debug;
@@ -71,6 +72,7 @@ public class OGTraditionalMutantsGenerator extends MutantsGenerator
       traditionalOp = MutationSystem.tm_operators;
    }
 
+   
    public OGTraditionalMutantsGenerator(File f, String[] tOP) 
    {
       super(f);
@@ -147,12 +149,6 @@ public class OGTraditionalMutantsGenerator extends MutantsGenerator
     * @param cdecls
     */
    void genTraditionalMutants(ClassDeclarationList cdecls){
-	   
-	   
-	   
-	  
-	  
-	  
 
       for (int j=0; j<cdecls.size(); ++j)
       {

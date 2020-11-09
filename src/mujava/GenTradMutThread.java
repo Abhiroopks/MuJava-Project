@@ -3,7 +3,10 @@ package mujava;
 import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.sun.tools.javac.Main;
 
@@ -22,15 +25,16 @@ public class GenTradMutThread implements Callable<Void> {
 	FileEnvironment file_env;
 	ClassDeclaration cdecl;
 	CompilationUnit comp_unit;
-	
+	ConcurrentHashMap<String, String> mutantSource;
 
 	//Constructor
-	GenTradMutThread(String op, FileEnvironment fe, ClassDeclaration cd, CompilationUnit cu){
+	GenTradMutThread(String op, FileEnvironment fe, ClassDeclaration cd, CompilationUnit cu, ConcurrentHashMap<String, String> mutantSource2){
 		
 		this.traditionalOp = op;
 		this.file_env = fe;
 		this.cdecl = cd;
 		this.comp_unit = cu;
+		this.mutantSource = mutantSource2;
 
 		
 	}
@@ -38,6 +42,8 @@ public class GenTradMutThread implements Callable<Void> {
 	// generates and compiles a traditional mutant
 	@Override
 	public Void call() throws Exception {
+		
+
 		
 		// create Mutator object for this specific traditional mutant object
 		try {
@@ -53,82 +59,22 @@ public class GenTradMutThread implements Callable<Void> {
 			// parameters for constructor
 			Object[] parameters = {this.file_env,this.cdecl,this.comp_unit};
 			mutant_op = (Mutator) constructor.newInstance(parameters);
+			
+			// tell this Mutator where to store generated mutant sources (local)
+			
+			mutant_op.setSourceMap(new HashMap<String,String>());
+			
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
 		
 		
-		// generate mutant
+		// generate mutants using this operator
 		this.comp_unit.accept(mutant_op);
 		
-		
-		// Compile mutants
-		 String[] pars = new String[3];
-	     pars[0] = "-classpath";
-	     pars[1] = MutationSystem.CLASS_PATH;
-	     
-	     for(String mut : mutant_op.mutfiles) {
-	    	 try
-	         {
-	        // result = 0 : SUCCESS,   result = 1 : FALSE
-	        //int result = Main.compile(pars,new PrintWriter(new FileOutputStream("temp")));
-	        	 
-	        	 /*
-	        	  * 12/19/13 Lin modified:
-	        	  * if not in debug mode, for not showing the compile result when some 
-	        	  * mutants can't pass compiler
-	        	  * if in debug mode, display
-	        	  */
-	    		 
-	    		 	pars[2] = mut;
-	        	 
-	 				int result;
-	 				if (!Util.debug)
-	 					result = Main.compile(pars);
-	 				else {
-	 					File tempCompileResultFile = new File(
-	 							MutationSystem.SYSTEM_HOME + "/compile_output");
-	 					PrintWriter out = new PrintWriter(tempCompileResultFile);
-
-	 					result = Main.compile(pars, out);
-	 					tempCompileResultFile.delete();
-	 				}
-	            
-	            if (result == 0)
-	            {
-	               Debug.print("+" + mut + "   ");
-	               //counter++;
-	            }
-	            else
-	            {
-	               Debug.print("-" + mut + "   ");
-	             // delete directory
-	               File dir_name = new File(MutationSystem.MUTANT_PATH + "/" + mut);
-	               File[] mutants = dir_name.listFiles();
-	               boolean tr = false;
-	               
-	               for (int j=0; j<mutants.length; j++)
-	               {
-	            // [tricky solution] It can produce loop -_-;;
-	                  while (!tr)
-	                  {
-	                     tr = mutants[j].delete();
-	                  }
-	                  tr = false;
-	               }
-	               
-	               while (!tr)
-	               {
-	                  tr = dir_name.delete();
-	               }
-	            }
-	         } 
-	         catch (Exception e)
-	         {
-	            System.err.println(e);
-	         }
-	     }
+		// now merge with global map
+		mutantSource.putAll(mutant_op.myprintwriter.mutantSource);
 
         
 

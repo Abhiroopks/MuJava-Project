@@ -94,8 +94,17 @@ public class TestExecuter {
   
   ExecutorService executorService = Executors.newWorkStealingPool();
   
+  // holds maps for source code and bytecode of each mutant
+  MutantData mutantData;
+  
 
-  public TestExecuter(String targetClassName) {
+  /*
+   * targetClassName: name of class to be tested
+   * mutantData: Object that holds the source code and bytecode of mutants
+   */
+  public TestExecuter(String targetClassName, MutantData mutantData) {
+	  
+	  this.mutantData = mutantData;
 
     int index = targetClassName.lastIndexOf(".");
     if(index<0){
@@ -137,7 +146,7 @@ public class TestExecuter {
         // read testcases from the test set class
         testCases = original_executer.getDeclaredMethods();
         if(testCases==null){
-          System.out.println(" No test case exist ");
+          System.out.println(" No test cases exist ");
           return false;
         }
     }catch(Exception e){
@@ -247,31 +256,44 @@ public class TestExecuter {
    * @throws NoMutantDirException
    * @throws NoMutantException
    */
-  private String[] getMutants (String methodSignature) throws NoMutantDirException, NoMutantException{
-
-	      // Read mutants
-	     //System.out.println("mutant_path: " + MutationSystem.MUTANT_PATH);
-	     File f = new File(MutationSystem.MUTANT_PATH);
-	    
-	     if(!f.exists()){
-	        System.err.println(" There is no directory for the mutants of " + MutationSystem.CLASS_NAME);
-	        System.err.println(" Please generate mutants for " + MutationSystem.CLASS_NAME);
-	        throw new NoMutantDirException();
-	     }
-
-	      // mutantDirectories match the names of mutants
-	     String[] mutantDirectories = f.list(new MutantDirFilter());
-
-	     if(mutantDirectories == null || mutantDirectories.length == 0){
-	    	  if(!methodSignature.equals(""))
-	    		  System.err.println(" No mutants have been generated for the method " + methodSignature + " of the class" + MutationSystem.CLASS_NAME);
-	    	  else
-	    		  System.err.println(" No mutants have been generated for the class " + MutationSystem.CLASS_NAME);
-	       // System.err.println(" Please check if zero mutant is correct.");
-	       // throw new NoMutantException();
-	     }  
+  private List<String> getMutants (String methodSignature) throws NoMutantDirException, NoMutantException{
 	  
-	return mutantDirectories;	  
+	  ArrayList<String> out = new ArrayList<String>();
+	  int dirlen = MutationSystem.MUTANT_PATH.length();
+	  int filenamelen = whole_class_name.length() + 5; 
+	  
+	  //iterate through the map of bytecodes
+	  for(String e : mutantData.mutantClass.keySet()) {
+		  if(e.startsWith(MutationSystem.MUTANT_PATH)) {
+			  out.add(e.substring(dirlen+1,e.length()-filenamelen-1));
+		  }
+		  
+	  }
+	  
+	  	
+//	      // Read mutants
+//	     //System.out.println("mutant_path: " + MutationSystem.MUTANT_PATH);
+//	     File f = new File(MutationSystem.MUTANT_PATH);
+//	    
+//	     if(!f.exists()){
+//	        System.err.println(" There is no directory for the mutants of " + MutationSystem.CLASS_NAME);
+//	        System.err.println(" Please generate mutants for " + MutationSystem.CLASS_NAME);
+//	        throw new NoMutantDirException();
+//	     }
+//
+//	      // mutantDirectories match the names of mutants
+//	     String[] mutantDirectories = f.list(new MutantDirFilter());
+//
+//	     if(mutantDirectories == null || mutantDirectories.length == 0){
+//	    	  if(!methodSignature.equals(""))
+//	    		  System.err.println(" No mutants have been generated for the method " + methodSignature + " of the class" + MutationSystem.CLASS_NAME);
+//	    	  else
+//	    		  System.err.println(" No mutants have been generated for the class " + MutationSystem.CLASS_NAME);
+//	       // System.err.println(" Please check if zero mutant is correct.");
+//	       // throw new NoMutantException();
+//	     }  
+	  
+	return out;	  
   }
   
 
@@ -359,15 +381,17 @@ public class TestExecuter {
    private TestResultParallel runMutants(TestResultParallel test_result, String methodSignature) throws NoMutantException,NoMutantDirException{
     try{
 
-      String[] mutantDirectories = getMutants(methodSignature);
+      List<String> mutantDirectories = getMutants(methodSignature);
       
-      int mutant_num = mutantDirectories.length;
+      int mutant_num = mutantDirectories.size();
       test_result.setMutants();
             
       for(int i = 0;i < mutant_num;i++){
           // set live mutnats
-          test_result.mutants.add(mutantDirectories[i]);
+          test_result.mutants.add(mutantDirectories.get(i));
       }
+      
+      
 
       // result againg original class for each test case
      // Object[] original_results = new Object[testCases.length];
@@ -376,32 +400,27 @@ public class TestExecuter {
 
       Debug.println("\n\n======================================== Executing Mutants ========================================");
             
-      List<TestThread> testthreads = new ArrayList<TestThread>();  
       ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>();
+      
+      String prefix = MutationSystem.MUTANT_PATH;
+      String path;
 
-      for(int i = 0; i < test_result.mutants.size(); i++){
-        // read the information for the "i"th live mutant
-    	
+      for(int i = 0; i < test_result.mutants.size(); i++){    	
     	String mutant_name = test_result.mutants.get(i).toString();
-    	futures.add(executorService.submit(new TestThread(mutant_name,whole_class_name,testSet,
-    			testCases,test_result,originalResults,TIMEOUT)));
-
-    
-    	//testthreads.add(new TestThread(mutant_name,whole_class_name,testSet,
-    		//	testCases,test_result,originalResults,TIMEOUT));
-
-        //Debug.print("  " + mutant_name);
-       
-        //mutantLoader = null;
-        //mutant_executer = null;
-        //System.gc();
+    	path = prefix + "/" + mutant_name + "/" + whole_class_name + ".java";
+    	futures.add(executorService.submit(
+    			new TestThread(mutant_name,whole_class_name,testSet,
+    			testCases,test_result,originalResults,TIMEOUT,mutantData.mutantClass.get(path))));
       }
       // END LOOP FOR MUTANTS
 
-      
       for(Future<Void> fut : futures) {
     	  fut.get();
       }
+      
+      //executorService.shutdownNow();
+      
+      System.out.println("\nMethod: " + methodSignature + "\nLive Mutants:\n" + test_result.live_mutants);
       
      // invoke all the tasks to thread pool and block until ALL finish
      // shouldn't get stuck because each task has time limit
