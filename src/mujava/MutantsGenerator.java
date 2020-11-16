@@ -24,13 +24,19 @@ import openjava.ptree.util.*;
 
 import java.io.*;
 import java.util.*;
+
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
+
 import java.lang.reflect.Constructor;
 
 import mujava.cli.Util;
 import mujava.op.util.*;
 import mujava.util.*;
 
-import com.sun.tools.javac.Main;
+//import com.sun.tools.javac.Main;
 
 /**
  * <p>Generate mutants according to selected mutation 
@@ -433,20 +439,20 @@ public abstract class MutantsGenerator
 
          
          
-         Vector v = new Vector();
+         Vector<String> v = new Vector<String>();
          for (int j=0; j<target_file.length; j++)
          {
             v.add(MutationSystem.MUTANT_PATH + "/" + s[i] + "/" + target_file[j]);
          }
 
-         String[] pars = new String[v.size()+2];
+         String[] pars = new String[2];
 
          pars[0] = "-classpath";
          pars[1] = MutationSystem.CLASS_PATH;
-         for (int j=0; j<v.size(); j++)
-         {
-            pars[2+j] = v.get(j).toString();
-         }
+//         for (int j=0; j<v.size(); j++)
+//         {
+//            pars[2+j] = v.get(j).toString();
+//         }
          try
          {
         // result = 0 : SUCCESS,   result = 1 : FALSE
@@ -459,21 +465,26 @@ public abstract class MutantsGenerator
         	  * if in debug mode, display
         	  */
         	 
-				int result;
+				boolean result;
 				if (Util.debug)
-					result = Main.compile(pars);
+					//result = Main.compile(pars);
+					result = compileFile(v.get(0),pars);
+					
 				else {
 					File tempCompileResultFile = new File(
 							MutationSystem.SYSTEM_HOME + "/compile_output");
 					PrintWriter out = new PrintWriter(tempCompileResultFile);
+					result = compileFile(v.get(0),pars);
 
-					result = Main.compile(pars, out);
+
+					//result = Main.compile(pars, out);
+					
 					tempCompileResultFile.delete();
 					
 				}
             
             
-            if (result == 0)
+            if (result)
             {
                Debug.print("+" + s[i] + "   ");
                counter++;
@@ -523,13 +534,13 @@ public abstract class MutantsGenerator
    private void compileOriginal()
    {
       String[] pars= { "-classpath",
-                      MutationSystem.CLASS_PATH,
-                      MutationSystem.ORIGINAL_PATH + "/" + MutationSystem.CLASS_NAME + ".java"};
+                      MutationSystem.CLASS_PATH};
       try
       {
       // result = 0 : SUCCESS,   result = 1 : FALSE
       //int result = Main.compile(pars,new PrintWriter(new FileOutputStream("temp")));
-         Main.compile(pars);
+         //Main.compile(pars);
+         compileFile( MutationSystem.ORIGINAL_PATH + "/" + MutationSystem.CLASS_NAME + ".java", pars);
       }
       catch (NoClassDefFoundError e) {
 	  System.err.println("[ERROR] Could not compile the generated mutants. Make sure that tools.jar is in your classpath.");
@@ -564,5 +575,28 @@ public abstract class MutantsGenerator
             return true;
       }
       return false;
+   }
+   
+   private boolean compileFile(String file, String[] pars) {
+	   
+	   File[] files1 = new File[1] ; // input for first compilation task
+	   files1[0] = new File(file);
+	   
+
+       JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+       StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
+
+       Iterable<? extends JavaFileObject> compilationUnits1 =
+           fileManager.getJavaFileObjectsFromFiles(Arrays.asList(files1));
+       boolean out = compiler.getTask(null, fileManager, null, Arrays.asList(pars), null, compilationUnits1).call();
+
+       try {
+		fileManager.close();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+       
+       return out;
    }
 }

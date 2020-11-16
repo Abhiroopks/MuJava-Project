@@ -253,6 +253,9 @@ public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 	               
 	               // submit generation tasks to processors
 	               // each thread should use a local map, then merge with global
+	               
+	               long start = System.currentTimeMillis();
+	               
 	               for(String mut : traditionalOp) {
 	            	   futures.add(executorService.submit(new GenTradMutThread(mut,file_env,cdecl,comp_unit,mutantSource)));
 	               }
@@ -261,6 +264,11 @@ public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 	            	   fut.get();
 	               }
 	               
+	               long end = System.currentTimeMillis();
+	               
+	               if(MutationSystem.timing) {
+	            	   System.out.println("Gen time: " + (end-start));
+	               }
 	              	               
 	               // compile
 	               
@@ -273,6 +281,7 @@ public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 
 	               futures.clear();
 	               
+	               start = System.currentTimeMillis();
 
 	               // now compile each mutant and store in memory
 	               for(Map.Entry<String,String> e : mutantSource.entrySet()) {
@@ -284,6 +293,16 @@ public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 	            	   fut.get();
 	               }
 	               
+	               end = System.currentTimeMillis();
+	               
+	               if(MutationSystem.timing) {
+	            	   System.out.println("Compile time: " + (end-start));
+	               }
+	               
+	               
+	               
+	               //ensure if any compilations failed,
+	               //threads removed the corresponding sourcecode as well
 	               assert(mutantSource.size() == mutantClass.size());
 
 

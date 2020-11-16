@@ -15,9 +15,15 @@ Visit http://cs.gmu.edu/~offutt/mujava for details.
 	* Added multithreading for generation phase. Pushes mutant ops to idle processors. Threads will also compile mutations in parallel.
 * 11/01/2020
 	* Threads in generation phase compile what they create. Completed basic CLI script for generation.
+* 11/08/2020
+	* Parallel version also keeps mutant source code / bytecode in memory for speedup.
+	* Completed CLI script for both generation and testing.
+* 11/15/2020
+	* Wrote script for testing single class completely (Gen mutants + run tests in one go)
+	* Include runnable JAR file for simple testing on linux machines
 
-## Notes
-* Currently, only the GUI was used to test correctness (shouldn't matter though)
-* Only tested in Eclipse IDE so far
-* Need framework to test performance
-* Try to improve generation phase time?
+
+## Notes / TODO
+* Test on larger classes(1000-10,000 LOC)
+* Test with more test cases
+* Fix GUI to use in-memory data

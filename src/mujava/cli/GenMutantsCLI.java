@@ -15,7 +15,7 @@ import mujava.TraditionalMutantsGenerator;
 
 public class GenMutantsCLI {
 	
-	public MutantData GenMutes(String className, String parallel, String mutantTypes) throws Exception {
+	public MutantData GenMutes(String className, String parallel) throws Exception {
 	      try {
 		  MutationSystem.setJMutationStructure();
 	      }
@@ -25,7 +25,8 @@ public class GenMutantsCLI {
 		  e.printStackTrace();
 		  return null;
 	      }
-	      MutationSystem.recordInheritanceRelation();		
+	      MutationSystem.recordInheritanceRelation();
+
 	      
 	      // simply mutate all files in src directory of target
 //	      Vector<String> file_list = MutationSystem.getNewTargetFiles();
@@ -37,11 +38,7 @@ public class GenMutantsCLI {
 	      
 	      // get all traditional mutation operators
 	      String[] traditional_ops = MutationSystem.tm_operators;
-	      
-	      
-	   // iterate over each class file selected
-	      long start = System.currentTimeMillis();
-	      	      
+	      	      	      
 //	      for (int i=0; i<file_list.size(); i++)
 //	      {
 	      // file_name = ABSTRACT_PATH - MutationSystem.SRC_PATH
@@ -129,20 +126,29 @@ public class GenMutantsCLI {
 
 	            
 			  // use parallel executor
-			  if(parallel.equals("-p")){
-				  mutantData = new MutantData();
-				  MutationSystem.isParallel = true;
-		          System.out.println("Running Parallel");
+			  if(MutationSystem.isParallel){
 		          // empty maps for source code and bytecode
+				  mutantData = new MutantData();
+		          //System.out.println("Running Parallel");
 				  tmGenEngine = new TraditionalMutantsGenerator(original_file,traditional_ops,mutantData);
 				  tmGenEngine.makeMutants();
 			  }
 			  else {
-				  MutationSystem.isParallel = false;
-				  System.out.println("Running Seq");
-			    tmGenEngine = new OGTraditionalMutantsGenerator(original_file,traditional_ops);
-			    tmGenEngine.makeMutants();
-			    tmGenEngine.compileMutants();
+				  //System.out.println("Running Seq");
+				  tmGenEngine = new OGTraditionalMutantsGenerator(original_file,traditional_ops);
+				  long makeStart = System.currentTimeMillis();
+				  tmGenEngine.makeMutants();
+				  long makeEnd = System.currentTimeMillis();
+				  
+				  if(MutationSystem.timing) {
+					  System.out.println("Gen time: " + (makeEnd-makeStart));
+				  }
+				  tmGenEngine.compileMutants();
+				  makeStart = System.currentTimeMillis();
+				  
+				  if(MutationSystem.timing) {
+					  System.out.println("Compile time: " + (makeStart-makeEnd));
+				  }
 			  }
 
             }
@@ -169,11 +175,7 @@ public class GenMutantsCLI {
             deleteDirectory();
          }
 	      
-	      
-	      
-          long end = System.currentTimeMillis();
-          System.out.println("Mutants Gen Time:" + (end-start));
-          
+	                
 	      System.out.println("------------------------------------------------------------------");
 	      System.out.println("All files are handled");
 	      
@@ -184,16 +186,15 @@ public class GenMutantsCLI {
 
 	public static void main(String[] args) throws Exception {
 		
-		if(args.length != 3 || (!args[2].equals("-p") && !args[2].equals("-s"))) {
+		if(args.length != 2 || (!args[1].equals("-p") && !args[1].equals("-s"))) {
 			System.out.println("Invalid arguments.\n"
 					+ "arg0: Name of class to test\n"
-					+ "arg1: class, trad, or both\n"
-					+ "arg2: -p or -s");
+					+ "arg1: -p or -s");
 			return;
 		}
 				
 		GenMutantsCLI gmcli = new GenMutantsCLI();
-		gmcli.GenMutes(args[0],args[1],args[2]);
+		gmcli.GenMutes(args[0],args[1]);
       }
 	
 	void setMutationSystemPathFor(String file_name)

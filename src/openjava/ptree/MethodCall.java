@@ -123,10 +123,10 @@ public class MethodCall extends NonLeaf implements Expression
             }
             ojClass = lookupClass;
         }
-        System.out.println("MethodCall method: " + this.getReferenceType() + "; " + this.getName());
+        //System.out.println("MethodCall method: " + this.getReferenceType() + "; " + this.getName());
         if (this.getReferenceType() != null && this.getName() != null) {
             final OJMethod ojMethod = new OJMethod(environment, ojClass, this);
-            System.out.println("MethodCall getType method: " + (ojMethod != null) + "; " + ojMethod.getReturnType());
+            //System.out.println("MethodCall getType method: " + (ojMethod != null) + "; " + ojMethod.getReturnType());
             if (ojMethod != null) {
                 return ojMethod.getReturnType();
             }

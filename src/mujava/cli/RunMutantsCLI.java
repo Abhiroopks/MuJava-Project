@@ -22,6 +22,9 @@ public class RunMutantsCLI {
 		   // just test all methods for now
 		   String methodSignature = "All method";
 		   
+		   // just test traditional muts 
+		   mutantTypes = "trad";
+		   
 		   //TODO: Get arg for timeout limit
 //			// check if the customized timeout is used
 //		   // added by Lin, 05/23/2015

@@ -129,31 +129,40 @@ public class TestExecuter {
 		TIMEOUT = msecs;
 	}
 
-  public boolean readTestSet(String testSetName){
-    try{
-        testSet = testSetName;
-        // Class loader for the original class
-        OriginalLoader myLoader = new OriginalLoader();
-        System.out.println(testSet);
-        original_executer = myLoader.loadTestClass(testSet);
-        original_obj = original_executer.newInstance();       // initialization of the test set class
-        //original_obj = new original_executer.class();
-        if(original_obj == null){
-          System.out.println("Can't instantiace original object");
-          return false;
-        }
+	 public boolean readTestSet(String testSetName){
+		    try{
+		        testSet = testSetName;
+		        // Class loader for the testset
+		        //OriginalLoader myLoader = new OriginalLoader();
+		        
+		        // load the original class
+		      	JMutationLoader mutantLoader = new JMutationLoader();
+		        mutantLoader.loadOriginal(whole_class_name);
+		        
+		        
+		        System.out.println(testSet);
+		        original_executer = mutantLoader.loadTestClass(testSet);
+		        
+		        System.out.println("Test class loaded: " + original_executer.getName());
+		                		
+//				original_obj = original_executer.newInstance();
+//				
+//		        if(original_obj == null){
+//		          System.out.println("Can't instantiace original object");
+//		          return false;
+//		        }
 
-        // read testcases from the test set class
-        testCases = original_executer.getDeclaredMethods();
-        if(testCases==null){
-          System.out.println(" No test cases exist ");
-          return false;
-        }
-    }catch(Exception e){
-      System.err.println(e);
-      return false;
-    }
-    return true;
+		        // read testcases from the test set class
+		        testCases = original_executer.getDeclaredMethods();
+		        if(testCases==null){
+		          System.out.println(" No test case exist ");
+		          return false;
+		        }
+		    }catch(Exception e){
+		      System.err.println(e);
+		      return false;
+		    }
+		    return true;
 
   }
 
@@ -215,8 +224,10 @@ public class TestExecuter {
     }
     
     long end = System.currentTimeMillis();
-    System.out.println("Parallel test time: "+ (end-start));
     
+    if(MutationSystem.timing) {
+    	System.out.println("Parallel test time: "+ (end-start));
+    }
     return test_result;
   }
  /**

@@ -150,7 +150,7 @@ public class MutationSystem extends OJSystem
    public static String[] op_desc = {   "" };
    
    public static boolean isParallel;
-   
+   public static boolean timing;
    
    
 
@@ -610,16 +610,24 @@ public static void addURL(String classPath) throws Exception {
 	   BufferedReader reader;
       try 
       {
-         File f = new File (MutationSystem.SYSTEM_HOME + "\\muJava-master/mujava.config");
+    	 String path = MutationSystem.SYSTEM_HOME;
+    	 if(System.getProperty("os.name").contains("Windows")) {
+    		 path += "/muJava-master/mujava.config";
+    	 }
+    	 else {
+    		 path += "/mujava.config";
+    	 }
+    	 
+         File f = new File (path);
          FileReader r = new FileReader(f);
          reader = new BufferedReader(r);
          String str = reader.readLine();
          String home_path = str.substring("MuJava_HOME=".length(), str.length());
          SYSTEM_HOME = home_path;
-         SRC_PATH = home_path + "\\src";
-         CLASS_PATH = home_path + "\\classes";
-         MUTANT_HOME = home_path + "\\result";
-         TESTSET_PATH = home_path + "\\testset";
+         SRC_PATH = home_path + "/src";
+         CLASS_PATH = home_path + "/classes";
+         MUTANT_HOME = home_path + "/result";
+         TESTSET_PATH = home_path + "/testset";
          reader.close();
       } catch (FileNotFoundException e1)
       {

@@ -149,6 +149,8 @@ public class OGTraditionalMutantsGenerator extends MutantsGenerator
     * @param cdecls
     */
    void genTraditionalMutants(ClassDeclarationList cdecls){
+	   
+	   
 
       for (int j=0; j<cdecls.size(); ++j)
       {
@@ -343,5 +345,6 @@ public class OGTraditionalMutantsGenerator extends MutantsGenerator
             }
          }
       }
+      
    }
 }

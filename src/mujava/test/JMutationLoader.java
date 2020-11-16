@@ -79,6 +79,14 @@ public class JMutationLoader extends ClassLoader{
 	  
   }
   
+  public Class loadOriginal(String name) throws ClassNotFoundException, FileNotFoundException, IOException{
+	  byte[] data = getClassData(name,MutationSystem.MUTANT_HOME + "/" + name + "/original/");
+	  //System.out.println(MutationSystem.MUTANT_PATH);
+	  
+
+	  return defineClass(name, data,0,data.length);
+  }
+  
   public Class loadClass(String name) throws ClassNotFoundException
   {
     // See if type has already been loaded by

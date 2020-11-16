@@ -1,18 +1,11 @@
 package mujava;
 
-import java.io.File;
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.sun.tools.javac.Main;
-
-import mujava.cli.Util;
 import mujava.op.util.Mutator;
-import mujava.util.Debug;
 import openjava.mop.FileEnvironment;
 import openjava.ptree.ClassDeclaration;
 import openjava.ptree.CompilationUnit;

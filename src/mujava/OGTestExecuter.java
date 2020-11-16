@@ -112,16 +112,25 @@ public class OGTestExecuter {
   public boolean readTestSet(String testSetName){
     try{
         testSet = testSetName;
-        // Class loader for the original class
-        OriginalLoader myLoader = new OriginalLoader();
+        // Class loader for the testset
+        //OriginalLoader myLoader = new OriginalLoader();
+        
+        // load the original class
+      	JMutationLoader mutantLoader = new JMutationLoader();
+        mutantLoader.loadOriginal(whole_class_name);
+        
+        
         System.out.println(testSet);
-        original_executer = myLoader.loadTestClass(testSet);
-        original_obj = original_executer.newInstance();       // initialization of the test set class
-        //original_obj = new original_executer.class();
-        if(original_obj == null){
-          System.out.println("Can't instantiace original object");
-          return false;
-        }
+        original_executer = mutantLoader.loadTestClass(testSet);
+        
+        System.out.println("Test class loaded: " + original_executer.getName());
+                		
+//		original_obj = original_executer.newInstance();
+//		
+//        if(original_obj == null){
+//          System.out.println("Can't instantiace original object");
+//          return false;
+//        }
 
         // read testcases from the test set class
         testCases = original_executer.getDeclaredMethods();
@@ -198,8 +207,10 @@ public class OGTestExecuter {
     }
     
     long end = System.currentTimeMillis();
-    System.out.println("OG Test time: "+ (end-start));
     
+    if(MutationSystem.timing) {
+    	System.out.println("Old Test time: "+ (end-start));
+    }
     return test_result;
   }
  /**
@@ -273,58 +284,59 @@ public class OGTestExecuter {
    public void computeOriginalTestResults(){
 	  Debug.println("\n\n======================================== Generating Original Test Results ========================================");	  
 	  try{   	  
-    	  //initialize the original results to "pass"
-    	  //later the results of the failed test cases will be updated
-          for(int k = 0;k < testCases.length;k++){
-          	Annotation[] annotations = testCases[k].getDeclaredAnnotations();
-            	for(Annotation annotation : annotations)
-            	{
-            		//System.out.println("name: " + testCases[k].getName() + annotation.toString() + annotation.toString().indexOf("@org.junit.Test"));
-            		if(annotation.toString().indexOf("@org.junit.Test") != -1){
-                		//killed_mutants[k]= "";   // At first, no mutants are killed by each test case
-                		originalResults.put(testCases[k].getName(), "pass");
-                		junitTests.add(testCases[k].getName());
-                		finalTestResults.put(testCases[k].getName(), "");
-                		continue;
-                	}
-            	}
-          }
+		  //initialize the original results to "pass"
+		  //later the results of the failed test cases will be updated
+	      for(int k = 0;k < testCases.length;k++){
+	      	Annotation[] annotations = testCases[k].getDeclaredAnnotations();
+	        	for(Annotation annotation : annotations)
+	        	{
+	        		//System.out.println("name: " + testCases[k].getName() + annotation.toString() + annotation.toString().indexOf("@org.junit.Test"));
+	        		if(annotation.toString().indexOf("@org.junit.Test") != -1){
+	            		//killed_mutants[k]= "";   // At first, no mutants are killed by each test case
+	            		originalResults.put(testCases[k].getName(), "pass");
+	            		junitTests.add(testCases[k].getName());
+	            		finalTestResults.put(testCases[k].getName(), "");
+	            		continue;
+	            	}
+	        	}
+	      	}
+          
            	 
-      	JUnitCore jCore = new JUnitCore();	
-      	//result = jCore.runMain(new RealSystem(), "VMTEST1");
-    	result = jCore.run(original_executer);
-
-    	//get the failure report and update the original result of the test with the failures
-      	List<Failure> listOfFailure = result.getFailures();
-  		for(Failure failure: listOfFailure){
-  			String nameOfTest = failure.getTestHeader().substring(0, failure.getTestHeader().indexOf("("));
-   			String testSourceName = testSet + "." + nameOfTest;
-   			
-   			//System.out.println("failure message: " + failure.getMessage() + failure.getMessage().equals(""));
-   			String[] sb = failure.getTrace().split("\\n");
-   			String lineNumber = "";
-   			for(int i = 0; i < sb.length;i++){
-   				if(sb[i].indexOf(testSourceName) != -1){
-   					lineNumber = sb[i].substring(sb[i].indexOf(":") + 1, sb[i].indexOf(")"));   					
-   				}
-   			}
-   			
-   			//put the failure messages into the test results
-   			if(failure.getMessage() == null)
-   				originalResults.put(nameOfTest, nameOfTest + ": " + lineNumber + "; " + "fail");
-   			else{
-	   			if(failure.getMessage().equals(""))
+	      	JUnitCore jCore = new JUnitCore();	
+	      	//result = jCore.runMain(new RealSystem(), "VMTEST1");
+	    	result = jCore.run(original_executer);
+	
+	    	//get the failure report and update the original result of the test with the failures
+	      	List<Failure> listOfFailure = result.getFailures();
+	  		for(Failure failure: listOfFailure){
+	  			String nameOfTest = failure.getTestHeader().substring(0, failure.getTestHeader().indexOf("("));
+	   			String testSourceName = testSet + "." + nameOfTest;
+	   			
+	   			//System.out.println("failure message: " + failure.getMessage() + failure.getMessage().equals(""));
+	   			String[] sb = failure.getTrace().split("\\n");
+	   			String lineNumber = "";
+	   			for(int i = 0; i < sb.length;i++){
+	   				if(sb[i].indexOf(testSourceName) != -1){
+	   					lineNumber = sb[i].substring(sb[i].indexOf(":") + 1, sb[i].indexOf(")"));   					
+	   				}
+	   			}
+	   			
+	   			//put the failure messages into the test results
+	   			if(failure.getMessage() == null)
 	   				originalResults.put(nameOfTest, nameOfTest + ": " + lineNumber + "; " + "fail");
-	   			else
-	   				originalResults.put(nameOfTest, nameOfTest + ": " + lineNumber + "; " + failure.getMessage());
-   			}
-  			
-  		}
-  		System.out.println(originalResults.toString());
-   
-      //  System.out.println(System.getProperty("user.dir"));
-      //  System.out.println(System.getProperty("java.class.path"));
-      //  System.out.println(System.getProperty("java.library.path"));
+	   			else{
+		   			if(failure.getMessage().equals(""))
+		   				originalResults.put(nameOfTest, nameOfTest + ": " + lineNumber + "; " + "fail");
+		   			else
+		   				originalResults.put(nameOfTest, nameOfTest + ": " + lineNumber + "; " + failure.getMessage());
+	   			}
+	  			
+	  		}
+	  		System.out.println(originalResults.toString());
+	   
+	      //  System.out.println(System.getProperty("user.dir"));
+	      //  System.out.println(System.getProperty("java.class.path"));
+	      //  System.out.println(System.getProperty("java.library.path"));
 
       
       } 
