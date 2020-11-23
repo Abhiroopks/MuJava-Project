@@ -267,7 +267,7 @@ public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 	               long end = System.currentTimeMillis();
 	               
 	               if(MutationSystem.timing) {
-	            	   System.out.println("Gen time: " + (end-start));
+	            	   MutationSystem.recordTime("Gen time: " + (end-start));
 	               }
 	              	               
 	               // compile
@@ -296,7 +296,7 @@ public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 	               end = System.currentTimeMillis();
 	               
 	               if(MutationSystem.timing) {
-	            	   System.out.println("Compile time: " + (end-start));
+	            	   MutationSystem.recordTime("Compile time: " + (end-start));
 	               }
 	               
 	               

@@ -151,6 +151,15 @@ public class MutationSystem extends OJSystem
    
    public static boolean isParallel;
    public static boolean timing;
+   public static PrintWriter writer;
+   
+   /**
+    * Used globally to write timing messages to file
+    * @param message
+    */
+   public static void recordTime(String message) { 
+	   writer.println(message); 
+   }
    
    
 
@@ -552,30 +561,14 @@ public class MutationSystem extends OJSystem
    
    // commented out due to Java 9 Changes.
    // instead, just add the path of the classes folder for whatever classes you want to test
-   /*
+  
    
-public static void addURL(String classPath) throws Exception {
-		  Method addClass = null;
-		// ClassLoader cl = null;
-		  File f = null;
-		  
-		  //URL u = new URL(classPath);
-		  ClassLoader loader = URLClassLoader.newInstance(new URL[] {}, ClassLoader.getSystemClassLoader());
-
-		  addClass = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
-		  addClass.setAccessible(true);
-		  f = new File(classPath);
-		  //cl = ClassLoader.getSystemClassLoader();
-		  
-		  
-		
-		  addClass.invoke(loader, new Object[] {f.toURI().toURL()});
-		  
-	      //String fullp = System.getProperty("java.class.path");
-
-		  
-		}
-		*/
+   /*
+   public static void addURL(String classPath) throws Exception {
+	  	   
+	    
+	}
+	*/
 
   /** Re-setting MuJava structure for give class name <br>
    * @param name of class (including package name) */

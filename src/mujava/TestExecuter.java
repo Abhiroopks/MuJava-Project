@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -226,7 +227,7 @@ public class TestExecuter {
     long end = System.currentTimeMillis();
     
     if(MutationSystem.timing) {
-    	System.out.println("Parallel test time: "+ (end-start));
+    	MutationSystem.recordTime("Parallel test time: "+ (end-start));
     }
     return test_result;
   }

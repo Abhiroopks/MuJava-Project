@@ -141,13 +141,13 @@ public class GenMutantsCLI {
 				  long makeEnd = System.currentTimeMillis();
 				  
 				  if(MutationSystem.timing) {
-					  System.out.println("Gen time: " + (makeEnd-makeStart));
+					  MutationSystem.recordTime("Gen time: " + (makeEnd-makeStart));
 				  }
 				  tmGenEngine.compileMutants();
 				  makeStart = System.currentTimeMillis();
 				  
 				  if(MutationSystem.timing) {
-					  System.out.println("Compile time: " + (makeStart-makeEnd));
+					  MutationSystem.recordTime("Compile time: " + (makeStart-makeEnd));
 				  }
 			  }
 

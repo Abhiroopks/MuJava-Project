@@ -1,8 +1,12 @@
 package mujava.cli;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+
 import mujava.MutantData;
 import mujava.MutationSystem;
 import mujava.cli.GenMutantsCLI;
@@ -32,15 +36,17 @@ public class TestCLI {
 		
 
 		// Mutant Gen reports alot of errors when creating bad mutants. Redirect to file instead of console
-		System.setErr(new PrintStream(new OutputStream() {
-            public void write(int b) {
-                //DO NOTHING
-            }
-        }));		
-
+		File errfile = new File("errfile.txt");
+		FileOutputStream fileOutputStream=new FileOutputStream(errfile);
+		PrintStream printStream=new PrintStream(fileOutputStream);		
+		System.setErr(printStream);		
+		
+		// Write timing information to file instead of console. Cleaner
+		File timings = new File("timings.txt");
+		FileWriter fileWriter = new FileWriter("timings.txt");
+	    MutationSystem.writer = new PrintWriter(fileWriter);
 		
 		
-				
 		
 		long start = System.currentTimeMillis();
 		// generate mutants and hold them in memory
@@ -54,8 +60,10 @@ public class TestCLI {
 		rmcli.RunMutes(args[0], args[1], args[2], md);
 		
 		if(MutationSystem.timing) {
-			System.out.println("Total time: " + (System.currentTimeMillis() - start));
+			MutationSystem.recordTime("Total time: " + (System.currentTimeMillis() - start));
 		}
+		
+		MutationSystem.writer.close();
 		
 		System.exit(0);
 		

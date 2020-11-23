@@ -209,7 +209,7 @@ public class OGTestExecuter {
     long end = System.currentTimeMillis();
     
     if(MutationSystem.timing) {
-    	System.out.println("Old Test time: "+ (end-start));
+    	MutationSystem.recordTime("Old Test time: "+ (end-start));
     }
     return test_result;
   }
