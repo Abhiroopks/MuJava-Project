@@ -316,12 +316,15 @@ public class TraditionalMutantsViewerPanel  extends MutantsViewerPanel
          int line_num = 0;
          int caret_pos = 0;
          String strLine;
-         File myFile = new File(MutationSystem.MUTANT_PATH + "/" + method_signature + "/" + dir_name,
-                    MutationSystem.CLASS_NAME + ".java");
+//         File myFile = new File(MutationSystem.MUTANT_PATH + "/" + method_signature + "/" + dir_name,
+//                    MutationSystem.CLASS_NAME + ".java");
+         String key = MutationSystem.MUTANT_PATH + "/" + method_signature + "/" + dir_name + "/" +
+               MutationSystem.CLASS_NAME + ".java";
 
          String blank_str;
-         LineNumberReader lReader = new LineNumberReader(new FileReader(myFile));
-
+         //LineNumberReader lReader = new LineNumberReader(new FileReader(myFile));
+         LineNumberReader lReader = new LineNumberReader(new StringReader(MutationSystem.md.mutantSource.get(key)));
+         
          while ((strLine = lReader.readLine()) != null)
          {
             blank_str = "";

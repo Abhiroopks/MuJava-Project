@@ -559,7 +559,7 @@ public class RunTestPanel extends JPanel implements ActionListener
 	         String targetClassName = classCB.getSelectedItem().toString();
 	         String testSetName = testCB.getSelectedItem().toString();
 	
-	         TestExecuter test_engine = new TestExecuter(targetClassName, null);
+	         TestExecuter test_engine = new TestExecuter(targetClassName);
 	         test_engine.setTimeOut(timeout_secs);
 	
 	         // First, read (load) test suite class.

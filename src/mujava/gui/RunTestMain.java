@@ -66,7 +66,9 @@ public class RunTestMain extends JFrame
    public static void main(String[] args) 
    {
       Debug.setDebugLevel(2);
-      MutationSystem.setJMutationStructure();
+      if(args != null) {
+    	  MutationSystem.setJMutationStructure();
+      }
       RunTestMain main = new RunTestMain();
       main.pack();
       main.setVisible(true);
