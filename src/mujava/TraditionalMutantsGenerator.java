@@ -77,29 +77,29 @@ public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
    ConcurrentHashMap<String,byte[]> mutantClass = null;
 
 
-   public TraditionalMutantsGenerator(File f, MutantData md) 
+   public TraditionalMutantsGenerator(File f) 
    {
       super(f);
       traditionalOp = MutationSystem.tm_operators;
-      this.mutantSource = md.mutantSource;
-      this.mutantClass = md.mutantClass;
+      this.mutantSource = MutationSystem.md.mutantSource;
+      this.mutantClass = MutationSystem.md.mutantClass;
       
    }
    
-   public TraditionalMutantsGenerator(File f, boolean debug, MutantData md) 
+   public TraditionalMutantsGenerator(File f, boolean debug) 
    {
       super (f, debug);
       traditionalOp = MutationSystem.tm_operators;
-      this.mutantSource = md.mutantSource;
-      this.mutantClass = md.mutantClass;
+      this.mutantSource = MutationSystem.md.mutantSource;
+      this.mutantClass = MutationSystem.md.mutantClass;
    }
 
-   public TraditionalMutantsGenerator(File f, String[] tOP, MutantData md) 
+   public TraditionalMutantsGenerator(File f, String[] tOP) 
    {
       super(f);
       traditionalOp = tOP;
-      this.mutantSource = md.mutantSource;
-      this.mutantClass = md.mutantClass;
+      this.mutantSource = MutationSystem.md.mutantSource;
+      this.mutantClass = MutationSystem.md.mutantClass;
    }
 
    /** 

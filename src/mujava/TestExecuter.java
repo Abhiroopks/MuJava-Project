@@ -99,13 +99,13 @@ public class TestExecuter {
   MutantData mutantData;
   
 
-  /*
-   * targetClassName: name of class to be tested
-   * mutantData: Object that holds the source code and bytecode of mutants
+  /**
+   * @param targetClassName name of class to test
    */
-  public TestExecuter(String targetClassName, MutantData mutantData) {
+  public TestExecuter(String targetClassName) {
 	  
-	  this.mutantData = mutantData;
+	// assume the md in MutationSystem has been populated by generator
+	this.mutantData = MutationSystem.md;
 
     int index = targetClassName.lastIndexOf(".");
     if(index<0){

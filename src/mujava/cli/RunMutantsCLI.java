@@ -11,13 +11,12 @@ import mujava.test.TestResultParallel;
 
 public class RunMutantsCLI {
 	
-	/*
-	 * targetClassName: name of class being tested
-	 * testSetName: name of JUnit Test file to be used
-	 * mutantTypes: Either traditional, class, or both
-	 * md: MutantData object for parallel (in-memory) executor. Null if using sequential executor
+	/**
+	 * @param targetClassName name of class being tested
+	 * @param testSetName name of JUnit Test file to be used
+	 * @param mutantTypes Either traditional, class, or both
 	 */
-	public void RunMutes(String targetClassName, String testSetName, String mutantTypes, MutantData mutantData) {
+	public void RunMutes(String targetClassName, String testSetName, String mutantTypes) {
 		   int timeout_secs = 3000;
 		   // just test all methods for now
 		   String methodSignature = "All method";
@@ -103,7 +102,7 @@ public class RunMutantsCLI {
 		      {
 
 		
-		         TestExecuter test_engine = new TestExecuter(targetClassName, mutantData);
+		         TestExecuter test_engine = new TestExecuter(targetClassName);
 		         test_engine.setTimeOut(timeout_secs);
 		
 		         // First, read (load) test suite class.

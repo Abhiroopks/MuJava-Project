@@ -1,6 +1,5 @@
 package mujava;
 
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MutantData {

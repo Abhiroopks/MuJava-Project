@@ -15,7 +15,7 @@ import mujava.TraditionalMutantsGenerator;
 
 public class GenMutantsCLI {
 	
-	public MutantData GenMutes(String className, String parallel) throws Exception {
+	public void GenMutes(String className, String parallel) throws Exception {
 	      try {
 		  MutationSystem.setJMutationStructure();
 	      }
@@ -23,7 +23,7 @@ public class GenMutantsCLI {
 		  System.err.println("[ERROR] Could not find one of the classes necessary to run muJava. Make sure that the .jar file for openjava is in your classpath.");
 		  System.err.println();
 		  e.printStackTrace();
-		  return null;
+		  return;
 	      }
 	      MutationSystem.recordInheritanceRelation();
 
@@ -33,19 +33,17 @@ public class GenMutantsCLI {
 //	      if(file_list.size() == 0) {
 //	          System.out.println("[ERROR] No files found to mutate in dir: " + MutationSystem.CLASS_PATH);
 //	      }
-	      
-	      String file_name = className + ".java";
+
+	      String file_name = className.replace(".", "/") + ".java";
+	      //file_name = className + ".java";
 	      
 	      // get all traditional mutation operators
 	      String[] traditional_ops = MutationSystem.tm_operators;
-	      	      	      
+	      //String[] traditional_ops = {"AOIS"};      	      
 //	      for (int i=0; i<file_list.size(); i++)
 //	      {
 	      // file_name = ABSTRACT_PATH - MutationSystem.SRC_PATH
 	      // For example: org/apache/bcel/Class.java
-	      
-         MutantData mutantData = null;
-
 	      
          try
          {
@@ -82,7 +80,7 @@ public class GenMutantsCLI {
 			//Added on 1/19/2013, no mutants will be generated for a class having only one main method
 			else if(class_type == MutationSystem.MAIN_ONLY){
 				System.out.println("Class " + file_name + " has only the 'static void main()' method and no mutants will be generated.");
-				return mutantData;
+				return;
 			}
 
 			
@@ -128,9 +126,9 @@ public class GenMutantsCLI {
 			  // use parallel executor
 			  if(MutationSystem.isParallel){
 		          // empty maps for source code and bytecode
-				  mutantData = new MutantData();
+				  //mutantData = new MutantData();
 		          //System.out.println("Running Parallel");
-				  tmGenEngine = new TraditionalMutantsGenerator(original_file,traditional_ops,mutantData);
+				  tmGenEngine = new TraditionalMutantsGenerator(original_file,traditional_ops);
 				  tmGenEngine.makeMutants();
 			  }
 			  else {
@@ -178,9 +176,6 @@ public class GenMutantsCLI {
 	                
 	      System.out.println("------------------------------------------------------------------");
 	      System.out.println("All files are handled");
-	      
-	      // used by parallel executor if necessary
-	      return mutantData;
 		
 	}
 
@@ -203,8 +198,8 @@ public class GenMutantsCLI {
 	      {
 	         String temp;
 	         temp = file_name.substring(0, file_name.length()-".java".length());
-	         temp = temp.replace('/', '.');
-	         temp = temp.replace('\\', '.');
+	         //temp = temp.replace('/', '.');
+	         //temp = temp.replace('\\', '.');
 	         int separator_index = temp.lastIndexOf(".");
 	         
 	         if (separator_index >= 0)

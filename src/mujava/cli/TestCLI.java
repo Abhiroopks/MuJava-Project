@@ -17,7 +17,7 @@ public class TestCLI {
 	
 	public static void main(String[] args) throws Exception {
 		// invalid args
-		if(args.length != 4 ||
+		if(args.length < 4 ||
 				(!args[3].equals("p") && !args[3].equals("s")) ||
 				(!args[2].equals("t") && !args[2].equals("n"))
 				){
@@ -39,32 +39,33 @@ public class TestCLI {
 		File errfile = new File("errfile.txt");
 		FileOutputStream fileOutputStream=new FileOutputStream(errfile);
 		PrintStream printStream=new PrintStream(fileOutputStream);		
-		System.setErr(printStream);		
-		
-		// Write timing information to file instead of console. Cleaner
-		File timings = new File("timings.txt");
-		FileWriter fileWriter = new FileWriter("timings.txt");
-	    MutationSystem.writer = new PrintWriter(fileWriter);
-		
-		
+		System.setErr(printStream);			
 		
 		long start = System.currentTimeMillis();
 		// generate mutants and hold them in memory
 		GenMutantsCLI gmcli = new GenMutantsCLI();
-		MutantData md = gmcli.GenMutes(args[0],args[3]);
+		gmcli.GenMutes(args[0],args[3]);
+		
+		if(MutationSystem.timing) {
+			// Write timing information to file instead of console. Cleaner
+			File timings = new File("timings.txt");
+			FileWriter fileWriter = new FileWriter("timings.txt");
+		    MutationSystem.writer = new PrintWriter(fileWriter);
+		}
 		
 		
 		// Run tests on mutants
 		
 		RunMutantsCLI rmcli = new RunMutantsCLI();
-		rmcli.RunMutes(args[0], args[1], args[2], md);
+		rmcli.RunMutes(args[0], args[1], args[2]);
 		
 		if(MutationSystem.timing) {
 			MutationSystem.recordTime("Total time: " + (System.currentTimeMillis() - start));
 		}
 		
-		MutationSystem.writer.close();
-		
+		if(MutationSystem.timing) {
+			MutationSystem.writer.close();
+		}
 		System.exit(0);
 		
 		

@@ -152,13 +152,17 @@ public class MutationSystem extends OJSystem
    public static boolean isParallel;
    public static boolean timing;
    public static PrintWriter writer;
+   // will be used by parallel generator and test executor
+   public static MutantData md = new MutantData();
    
    /**
     * Used globally to write timing messages to file
     * @param message
     */
    public static void recordTime(String message) { 
-	   writer.println(message); 
+	   if(MutationSystem.writer != null) {
+		   writer.println(message); 
+	   }
    }
    
    
@@ -515,6 +519,7 @@ public class MutationSystem extends OJSystem
             }
          } catch (ClassNotFoundException e)  
          {
+        	System.err.println("Except in MutationSystem.recordInheritanceRelation()");
             System.err.println("[ERROR] Can't find the class: " + classes[i]);
             System.err.println("Please check that the compiled class for the code you want to mutate is in the classes/ directory. Also check that the MuJava_HOME variable in mujava.config does not end with a trailing slash. " );
 		    bad[i] = true; 
@@ -605,7 +610,7 @@ public class MutationSystem extends OJSystem
       {
     	 String path = MutationSystem.SYSTEM_HOME;
     	 if(System.getProperty("os.name").contains("Windows")) {
-    		 path += "/muJava-master/mujava.config";
+    		 path += "/mujava.config";
     	 }
     	 else {
     		 path += "/mujava.config";
