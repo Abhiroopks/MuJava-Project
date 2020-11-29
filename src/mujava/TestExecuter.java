@@ -93,7 +93,7 @@ public class TestExecuter {
   //results as to how many tests can kill each single mutant  
   Map<String, String> finalMutantResults = new HashMap<String, String>(1);
   
-  ExecutorService executorService = Executors.newWorkStealingPool();
+  //ExecutorService executorService = Executors.newWorkStealingPool();
   
   // holds maps for source code and bytecode of each mutant
   MutantData mutantData;
@@ -420,7 +420,7 @@ public class TestExecuter {
       for(int i = 0; i < test_result.mutants.size(); i++){    	
     	String mutant_name = test_result.mutants.get(i).toString();
     	path = prefix + "/" + mutant_name + "/" + whole_class_name + ".java";
-    	futures.add(executorService.submit(
+    	futures.add(MutationSystem.executorService.submit(
     			new TestThread(mutant_name,whole_class_name,testSet,
     			testCases,test_result,originalResults,TIMEOUT,mutantData.mutantClass.get(path))));
       }

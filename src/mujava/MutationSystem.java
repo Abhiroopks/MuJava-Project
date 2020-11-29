@@ -27,6 +27,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * <p>Description: Control an entire MuJava system -- 
@@ -150,6 +152,10 @@ public class MutationSystem extends OJSystem
    public static String[] op_desc = {   "" };
    
    public static boolean isParallel;
+   public static int parallelLevel;
+   public static ExecutorService executorService;
+
+   
    public static boolean timing;
    public static PrintWriter writer;
    // will be used by parallel generator and test executor

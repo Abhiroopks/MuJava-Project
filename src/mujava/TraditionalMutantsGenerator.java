@@ -72,7 +72,7 @@ import mujava.util.Debug;
 public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 {
    String[] traditionalOp;
-   ExecutorService executorService = Executors.newWorkStealingPool();
+   //ExecutorService executorService = Executors.newWorkStealingPool();
    ConcurrentHashMap<String,String> mutantSource = null;
    ConcurrentHashMap<String,byte[]> mutantClass = null;
 
@@ -257,7 +257,7 @@ public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 	               long start = System.currentTimeMillis();
 	               
 	               for(String mut : traditionalOp) {
-	            	   futures.add(executorService.submit(new GenTradMutThread(mut,file_env,cdecl,comp_unit,mutantSource)));
+	            	   futures.add(MutationSystem.executorService.submit(new GenTradMutThread(mut,file_env,cdecl,comp_unit,mutantSource)));
 	               }
 	               // wait for all tasks to finish
 	               for(Future<Void> fut : futures) {
@@ -285,13 +285,14 @@ public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 
 	               // now compile each mutant and store in memory
 	               for(Map.Entry<String,String> e : mutantSource.entrySet()) {
-	            	   futures.add(executorService.submit(new CompMutThread(mutantSource, e, mutantClass, tempName,options,compiler)));
+	            	   futures.add(MutationSystem.executorService.submit(new CompMutThread(mutantSource, e, mutantClass, tempName,options,compiler)));
 	               }
 	               
 	               // wait for all tasks to finish
 	               for(Future<Void> fut : futures) {
 	            	   fut.get();
 	               }
+	               
 	               
 	               end = System.currentTimeMillis();
 	               
