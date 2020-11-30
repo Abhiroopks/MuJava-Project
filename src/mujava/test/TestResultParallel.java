@@ -31,9 +31,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class TestResultParallel
 {
 	public Vector mutants = new Vector();
-//	public Vector killed_mutants = new Vector();
-//	public Vector live_mutants = new Vector();
-	public int mutant_score = 0;
 	
 	public ConcurrentLinkedQueue<String> killed_mutants = new ConcurrentLinkedQueue<String>();
 	public ConcurrentLinkedQueue<String> live_mutants = new ConcurrentLinkedQueue<String>();

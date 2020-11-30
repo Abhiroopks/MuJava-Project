@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -80,7 +81,17 @@ public class TestThread implements Callable<Void>{
 
 		JUnitCore jCore = new JUnitCore();
 		
-		ExecutorService exec = Executors.newSingleThreadExecutor();
+		ExecutorService exec = Executors.newSingleThreadExecutor(new ThreadFactory(){
+			// kill threads once they go overtime (set daemon)
+			@Override
+			public Thread newThread(Runnable r) {
+				Thread t = new Thread(r);
+		        t.setDaemon(true);
+		        return t;
+			}
+			
+			
+		});
 		Future<Result> f = exec.submit(new JunitThread(jCore, mutant_executer));
 		Result result = null;
 		try {

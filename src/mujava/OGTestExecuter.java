@@ -211,6 +211,11 @@ public class OGTestExecuter {
     if(MutationSystem.timing) {
     	MutationSystem.recordTime("Old Test time: "+ (end-start));
     }
+    
+    double mutant_score = (double)test_result.killed_mutants.size() /
+    		(test_result.live_mutants.size() + test_result.killed_mutants.size());
+    System.out.printf("Mutation Score : %f\n", mutant_score);
+    
     return test_result;
   }
  /**

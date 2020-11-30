@@ -229,6 +229,12 @@ public class TestExecuter {
     if(MutationSystem.timing) {
     	MutationSystem.recordTime("Parallel test time: "+ (end-start));
     }
+    
+    double mutant_score = (double)test_result.killed_mutants.size() /
+    		(test_result.live_mutants.size() + test_result.killed_mutants.size());
+    System.out.printf("Mutation Score : %f\n", mutant_score);
+
+    
     return test_result;
   }
  /**
@@ -403,8 +409,6 @@ public class TestExecuter {
           test_result.mutants.add(mutantDirectories.get(i));
       }
       
-      
-
       // result againg original class for each test case
      // Object[] original_results = new Object[testCases.length];
       // list of the names of killed mutants with each test case
@@ -432,7 +436,7 @@ public class TestExecuter {
       
       //executorService.shutdownNow();
       
-      System.out.println("\nMethod: " + methodSignature + "\nLive Mutants:\n" + test_result.live_mutants);
+      //System.out.println("\nMethod: " + methodSignature + "\nLive Mutants:\n" + test_result.live_mutants);
       
      // invoke all the tasks to thread pool and block until ALL finish
      // shouldn't get stuck because each task has time limit

@@ -166,7 +166,6 @@ public class GenMutantsCLI {
          } catch(Error er)
          {
             System.out.println("[Error] " + file_name + " " + er.toString());
-            System.out.println("MutantsGenPanel: ");
             er.printStackTrace();
 
             //System.out.println("Can't generate mutants for " +file_name + " due to error" + er.getClass().getName());
