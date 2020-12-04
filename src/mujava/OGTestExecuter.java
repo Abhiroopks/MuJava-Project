@@ -544,7 +544,7 @@ public class OGTestExecuter {
       }
 */
       
-      System.out.println("\nMethod: " + methodSignature + "\nLive Mutants:\n" + tr.live_mutants);
+      //System.out.println("\nMethod: " + methodSignature + "\nLive Mutants:\n" + tr.live_mutants);
 
 
     }catch(NoMutantException e1){

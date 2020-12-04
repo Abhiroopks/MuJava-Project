@@ -28,8 +28,10 @@ public class CodeChangeLog {
 
   static final String logFile_name = "mutation_log";
   static PrintWriter log_writer;
+  static int numMuts;
 
   public static void openLogFile(){
+	  numMuts = 0;
     try{
       File f = new File(MutationSystem.MUTANT_PATH,logFile_name);
       FileWriter fout = new FileWriter(f);
@@ -41,10 +43,13 @@ public class CodeChangeLog {
 
   public static void writeLog(String str){
     log_writer.println(str);
+    numMuts ++;
   }
 
   public static void closeLogFile(){
+	System.out.println("Mutants Generated: " + numMuts);
     log_writer.flush();
     log_writer.close();
+    
   }
 }

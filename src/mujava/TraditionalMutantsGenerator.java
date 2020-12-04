@@ -301,11 +301,10 @@ public class TraditionalMutantsGenerator extends OGTraditionalMutantsGenerator
 	               }
 	               
 	               
-	               
 	               //ensure if any compilations failed,
 	               //threads removed the corresponding sourcecode as well
 	               assert(mutantSource.size() == mutantClass.size());
-
+	               System.out.println("Mutants Generated: " + mutantClass.size());
 
 
             	}catch (InterruptedException | ExecutionException e) {

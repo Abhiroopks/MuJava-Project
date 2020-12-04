@@ -14,7 +14,6 @@ public class TestGUI {
 		GenMutantsMain.main(null);
 		RunTestMain.main(null);
 		
-		
 	}
 
 }
