@@ -105,7 +105,7 @@ public class TestThread implements Callable<Void>{
 		} catch (TimeoutException e) {
 			// if timeout happens, then there was likely an infinite loop/
 			// mark this mutant as killed and return immediately
-			System.out.println("Timeout: " + mutantName);
+			System.err.println("Timeout: " + mutantName);
 			exec.shutdownNow();
 			tr.killed_mutants.add(mutantName);
 			

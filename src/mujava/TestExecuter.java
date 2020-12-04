@@ -340,8 +340,21 @@ public class TestExecuter {
            	 
       	JUnitCore jCore = new JUnitCore();	
       	//result = jCore.runMain(new RealSystem(), "VMTEST1");
+      	
+      	long startTime = System.currentTimeMillis();
+      	
     	result = jCore.run(ParallelComputer.methods(),original_executer);
-
+    	
+    	long endTime = System.currentTimeMillis();
+    	
+    	// user never specified timeout
+    	if(this.TIMEOUT == 0) {
+    		this.setTimeOut((int) (2*(endTime - startTime)));
+    	}
+    	
+    	
+    	
+    	
     	//get the failure report and update the original result of the test with the failures
       	List<Failure> listOfFailure = result.getFailures();
   		for(Failure failure: listOfFailure){
@@ -368,7 +381,7 @@ public class TestExecuter {
    			}
   			
   		}
-  		System.out.println(originalResults.toString());
+  		//System.out.println(originalResults.toString());
    
       //  System.out.println(System.getProperty("user.dir"));
       //  System.out.println(System.getProperty("java.class.path"));

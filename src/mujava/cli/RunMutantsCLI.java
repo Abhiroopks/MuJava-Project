@@ -16,30 +16,9 @@ public class RunMutantsCLI {
 	 * @param testSetName name of JUnit Test file to be used
 	 * @param mutantTypes Either traditional, class, or both
 	 */
-	public void RunMutes(String targetClassName, String testSetName, String mutantTypes) {
-		   int timeout_secs = 3000;
+	public void RunMutes(String targetClassName, String testSetName, String mutantTypes, int timeout_secs) {
 		   // just test all methods for now
 		   String methodSignature = "All method";
-		   
-		   // just test traditional muts 
-		   mutantTypes = "trad";
-		   
-		   //TODO: Get arg for timeout limit
-//			// check if the customized timeout is used
-//		   // added by Lin, 05/23/2015
-//			if (isCustomizedTimeout) {
-//				try {
-//					timeout_secs  = 1000*Integer.parseInt(timeoutTextField.getText());
-//					// what if a negative or zero, set it to 3000
-//					if (timeout_secs <= 0) {
-//						timeout_secs = 3000;
-//					}
-//
-//				} catch (NumberFormatException ex) {
-//					// if not a number, set to be 3000
-//					timeout_secs = 3000;
-//				}
-//			}
 		   
 	      // OG TEST EXECUTOR
 	      if(!MutationSystem.isParallel) {

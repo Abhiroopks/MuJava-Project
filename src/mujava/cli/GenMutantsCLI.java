@@ -15,7 +15,7 @@ import mujava.TraditionalMutantsGenerator;
 
 public class GenMutantsCLI {
 	
-	public void GenMutes(String className, String parallel) throws Exception {
+	public void GenMutes(String className) throws Exception {
 	      try {
 		  MutationSystem.setJMutationStructure();
 	      }
@@ -178,18 +178,6 @@ public class GenMutantsCLI {
 		
 	}
 
-	public static void main(String[] args) throws Exception {
-		
-		if(args.length != 2 || (!args[1].equals("-p") && !args[1].equals("-s"))) {
-			System.out.println("Invalid arguments.\n"
-					+ "arg0: Name of class to test\n"
-					+ "arg1: -p or -s");
-			return;
-		}
-				
-		GenMutantsCLI gmcli = new GenMutantsCLI();
-		gmcli.GenMutes(args[0],args[1]);
-      }
 	
 	void setMutationSystemPathFor(String file_name)
 	   {

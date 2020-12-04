@@ -35,6 +35,7 @@ import mujava.test.*;
 import mujava.util.*;
 
 import org.junit.*;
+import org.junit.experimental.ParallelComputer;
 import org.junit.internal.RealSystem;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -309,7 +310,16 @@ public class OGTestExecuter {
            	 
 	      	JUnitCore jCore = new JUnitCore();	
 	      	//result = jCore.runMain(new RealSystem(), "VMTEST1");
-	    	result = jCore.run(original_executer);
+	      	long startTime = System.currentTimeMillis();
+	      	
+	    	result = jCore.run(ParallelComputer.methods(),original_executer);
+	    	
+	    	long endTime = System.currentTimeMillis();
+	    	
+	    	// user never specified timeout
+	    	if(this.TIMEOUT == 0) {
+	    		this.setTimeOut((int) (2*(endTime - startTime)));
+	    	}
 	
 	    	//get the failure report and update the original result of the test with the failures
 	      	List<Failure> listOfFailure = result.getFailures();
@@ -337,7 +347,7 @@ public class OGTestExecuter {
 	   			}
 	  			
 	  		}
-	  		System.out.println(originalResults.toString());
+	  		//System.out.println(originalResults.toString());
 	   
 	      //  System.out.println(System.getProperty("user.dir"));
 	      //  System.out.println(System.getProperty("java.class.path"));

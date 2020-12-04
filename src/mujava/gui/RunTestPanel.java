@@ -82,7 +82,6 @@ public class RunTestPanel extends JPanel implements ActionListener
    JRadioButton onlyTraditionalButton = new JRadioButton("Execute only traditional mutants");
    JRadioButton onlyExceptionButton = new JRadioButton("Execute only exception mutants");
    JRadioButton bothButton = new JRadioButton("Execute all mutants");
-   JCheckBox parallelButton = new JCheckBox("Use Parallel Executor");
 
    JComboBox testCB;
    JButton runB = new JButton("RUN");
@@ -109,9 +108,7 @@ public class RunTestPanel extends JPanel implements ActionListener
    {
       this.setLayout(new GridBagLayout());
       GridBagConstraints c = new GridBagConstraints();
-      
-      parallelButton.setActionCommand("PARALLEL");
-      parallelButton.addActionListener(this);
+
 
       onlyClassButton.setActionCommand("CLASS");
       onlyClassButton.addActionListener(this);
@@ -136,7 +133,6 @@ public class RunTestPanel extends JPanel implements ActionListener
       optionP.add(onlyClassButton);
       optionP.add(onlyTraditionalButton);
       optionP.add(bothButton);
-      optionP.add(parallelButton);
 
       c.gridx = 0;
       c.gridy = 0;
@@ -494,7 +490,7 @@ public class RunTestPanel extends JPanel implements ActionListener
       Object testSetObject  = testCB.getSelectedItem();
       
       // OG TEST EXECUTOR
-      if(!parallelButton.isSelected()) {
+      if(!MutationSystem.isParallel) {
     	  
       
 	      if((targetClassObj != null) && (testSetObject != null))
