@@ -112,8 +112,9 @@ public class OGTraditionalMutantsGenerator extends MutantsGenerator
 
    /**
     * Compile traditional mutants into bytecode 
+ * @return 
     */
-   public void compileMutants()
+   public int compileMutants()
    {
       if (traditionalOp != null && traditionalOp.length > 0)
       {
@@ -125,13 +126,14 @@ public class OGTraditionalMutantsGenerator extends MutantsGenerator
             FileReader r = new FileReader(f);
             BufferedReader reader = new BufferedReader(r);
             String str = reader.readLine();
-            
+            int counter = 0;
             while (str != null)
             {
                MutationSystem.MUTANT_PATH = original_tm_path + "/" + str;
-               super.compileMutants();
+               counter += super.compileMutants();
                str = reader.readLine();
             }
+            System.out.println("Final Valid Mutants: " + counter);
             reader.close();
             MutationSystem.MUTANT_PATH = original_tm_path;
          } catch (Exception e)
@@ -140,6 +142,9 @@ public class OGTraditionalMutantsGenerator extends MutantsGenerator
             System.err.println("Error at compileMutants() in TraditionalMutantsGenerator.java");
          }
       }
+      
+      // dummy no purpose
+      return 0;
    }
 
    /**

@@ -419,8 +419,9 @@ public abstract class MutantsGenerator
 
    /**
     * Compile mutants 
+    * Return count of mutants for this method
     */
-   public void compileMutants()
+   public int compileMutants()
    {
        // Lin add a counter 12/12/13
        int counter = 0;
@@ -523,6 +524,9 @@ public abstract class MutantsGenerator
       
       // Lin add printer total mutants
       Util.Total = Util.Total+counter;
+      
+      return counter;
+      //System.out.println("Final Valid Mutants: " + counter);
 //      System.out
 //		.println("------------------------------------------------------------------");
 //      System.out.println("Total mutants gnerated for " + fileName +": " + Integer.toString(counter));

@@ -47,7 +47,7 @@ public class CodeChangeLog {
   }
 
   public static void closeLogFile(){
-	System.out.println("Mutants Generated: " + numMuts);
+	System.out.println("Total Initial Mutants Generated: " + numMuts);
     log_writer.flush();
     log_writer.close();
     
