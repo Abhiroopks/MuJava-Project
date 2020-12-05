@@ -25,9 +25,9 @@ public class TestCLI {
 			System.out.println("Invalid arguments.\n"
 					+ "arg0: Name of class to test\n"
 					+ "arg1: Name of JUnit Test File\n"
-					+ "arg2: parallel level : 0 meaning standard version is used"
-					+ "(optional) -r: record time"
-					+ "(optional) -t [timeout]: custom test timeout in seconds");
+					+ "arg2: parallel level : 0 meaning standard version is used\n"
+					+ "-r: record time\n"
+					+ "-t [timeout]: custom test timeout in seconds");
 			return;
 		}
 		
