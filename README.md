@@ -30,7 +30,7 @@ Visit http://cs.gmu.edu/~offutt/mujava for details.
 ## Usage
 * TestCLI.jar can be used to run the tool in a linux CLI. The one included here works with Calculus.java (used in final evaluation).
 	* To use CLI tool: 
-		* java -jar TestCLI.jar <java class to mutate> <# threads to use> [options]
+		* java -jar TestCLI.jar <java class to mutate> <JUnit testset> <# threads to use> [options]
 		* options
 			* -r		record timing data
 			* -t < time >	custom test timeout in seconds
