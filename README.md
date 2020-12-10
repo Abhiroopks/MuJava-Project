@@ -1,3 +1,4 @@
+
 # muJava Improved
 
 Mutation system for Java programs, including OO mutation operators. Added multithreading functionality by Abhiroop Kodandapur Sanjeeva.
@@ -26,5 +27,13 @@ Visit http://cs.gmu.edu/~offutt/mujava for details.
 	* Include JAR for randoop test generation
 	
 
-## Notes / TODO
-* Run tests and record time results
+## Usage
+* TestCLI.jar can be used to run the tool in a linux CLI. The one included here works with Calculus.java (used in final evaluation).
+	* To use CLI tool: 
+		* java -jar TestCLI.jar <java class to mutate> <# threads to use> [options]
+		* options
+			* -r		record timing data
+			* -t < time >	custom test timeout in seconds
+	* GUI that uses new features also exists. Run the TestGUI.java file in src/mujava/gui.
+		* Must run the mutant generation before testing to function properly
+		* Allows user to visualize mutants
